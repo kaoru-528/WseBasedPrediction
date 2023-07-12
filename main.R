@@ -19,5 +19,6 @@ for(i in seq(1, 62, by=8)){
     j = j + 1 
 }
 
-plot(c(1:length(tmp_Cs_1)), tmp_Cs_1,main = "C[1][4]", xlab = "number", ylab = "C_coe")
-plot(c(1:length(tmp_Ds_1)), tmp_Ds_1)
+# plot(c(1:length(tmp_Cs_1)), tmp_Cs_1,main = "C[1][4]", xlab = "number", ylab = "C_coe", pch = 16, col = "blue")
+plot(c(1:length(tmp_Ds_1)), tmp_Ds_1,main = "D[1][2]", xlab = "number", ylab = "C_coe", pch = 16, col = "blue")
+
