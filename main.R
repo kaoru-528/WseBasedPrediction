@@ -9,16 +9,24 @@ tmp_Cs = list()
 tmp_Cs_1 = list()
 tmp_Ds_1 = list()
 tmp_Ds = list()
-j = 1
-for(i in seq(1, 62, by=8)){
-    tmp_Cs = c(tmp_Cs,Cs[i])
-    tmp_Cs_1 = c(tmp_Cs_1,tmp_Cs[[j]][[4]])
-    tmp_Ds = c(tmp_Ds,Ds[i])
-    tmp_Ds_1 = c(tmp_Ds_1,tmp_Ds[[j]][[4]])
 
-    j = j + 1 
+a = length(Ds)
+j = 1
+# for(i in seq(1, 62, by=8)){
+#     tmp_Cs = c(tmp_Cs,Cs[i])
+#     tmp_Cs_1 = c(tmp_Cs_1,tmp_Cs[[j]][[4]])
+#     tmp_Ds = c(tmp_Ds,Ds[i])
+#     tmp_Ds_1 = c(tmp_Ds_1,tmp_Ds[[j]][[4]][1])
+
+#     j = j + 1 
+# }
+
+for(i in seq(1, length(Ds), by=1)){
+    # tmp_Ds = c(tmp_Ds,Ds[i])
+    tmp_Ds_1 = c(tmp_Ds_1,Cs[[i]][[4]][1])
+
 }
 
-# plot(c(1:length(tmp_Cs_1)), tmp_Cs_1,main = "C[1][4]", xlab = "number", ylab = "C_coe", pch = 16, col = "blue")
-plot(c(1:length(tmp_Ds_1)), tmp_Ds_1,main = "D[1][2]", xlab = "number", ylab = "C_coe", pch = 16, col = "blue")
+#  plot(c(1:length(tmp_Cs_1)), tmp_Cs_1,main = "C[1][4]", xlab = "number", ylab = "C_coe", pch = 16, col = "blue", type = "b")
+plot(c(1:length(tmp_Ds_1)), tmp_Ds_1,main = "All_D[2][1]", xlab = "number", ylab = "C_coe", pch = 16, col = "blue",type = "b")
 
