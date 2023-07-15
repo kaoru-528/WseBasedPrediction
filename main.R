@@ -8,10 +8,12 @@ source(createGraph_Path)
 
 name = "NDT_soft"
 createGraph(soft, name)
+name = "NDT_hard"
+createGraph(hard, name)
 name = "Ans_A1_ut_hard"
 createGraph(ut_hard, name)
-# name = "Ans_A1_ut_soft"
-# createGraph(ut_soft, name)
+name = "Ans_A1_ut_soft"
+createGraph(ut_soft, name)
 
 
 # # NDT

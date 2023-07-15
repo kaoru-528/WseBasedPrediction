@@ -1,7 +1,6 @@
 
 
 createGraph = function(data, name){
-    print("a")
     Cs = data$Cs
     Ds = data$Ds
     dDs = data$Denoise_Ds
