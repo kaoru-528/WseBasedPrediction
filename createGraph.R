@@ -1,11 +1,10 @@
-
-
 createGraph = function(data, name){
     Cs = data$Cs
     Ds = data$Ds
     dDs = data$Denoise_Ds
 
     tmp_Cs_4_1 = list()
+
     tmp_Ds_2_1 = list()
     tmp_Ds_2_2 = list()
     tmp_Ds_2_3 = list()
@@ -56,16 +55,32 @@ createGraph = function(data, name){
     }
     coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
 
-    
-    # "Ans_A1_ut_hard
+    # j = 2
+    # title = paste0(name,"\n",coe_name[[j]])
+    # filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
+    # png(filename, width = 1344, height = 914 )
+    # x = c(1:55)
+    # f <- function(x, a, b, c, d, e) {
+    #     a * sin(b * x) + c * cos(d * x) + e
+    # }
+    # fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d, e), start = list(a = 100, b = 100, c = 100, d = 100, e = 0))
+    # params <- coef(fit)
+    # plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
+    # lines(x, f(x, params[1], params[2], params[3], params[4], params[5]), col = "red")
+    # dev.off()
+
     for(j in seq(1, 15, by = 1)){
-        if((name == "NDT_soft" || name == "NDT_soft") && j >= 9){
-            break
-        }
         title = paste0(name,"\n",coe_name[[j]])
         filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
         png(filename, width = 1344, height = 914 )
-        plot(c(1:length(coe[[j]])), coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
+        x = c(1:55)
+        f <- function(x, a, b, c, d, e) {
+            a * sin(b * x) + c * cos(d * x) + e
+        }
+        fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d, e), start = list(a = 10, b = 10, c = 10, d = 10, e = 10),  control=nls.control(maxiter=2000))
+        params <- coef(fit)
+        plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
+        lines(x, f(x, params[1], params[2], params[3], params[4], params[5]), col = "red")
         dev.off()
     }
 }
