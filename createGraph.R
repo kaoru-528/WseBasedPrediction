@@ -69,18 +69,62 @@ createGraph = function(data, name){
     # lines(x, f(x, params[1], params[2], params[3], params[4], params[5]), col = "red")
     # dev.off()
 
-    for(j in seq(1, 15, by = 1)){
-        title = paste0(name,"\n",coe_name[[j]])
-        filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
-        png(filename, width = 1344, height = 914 )
-        x = c(1:55)
-        f <- function(x, a, b, c, d, e) {
-            a * sin(b * x) + c * cos(d * x) + e
-        }
-        fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d, e), start = list(a = 10, b = 10, c = 10, d = 10, e = 10),  control=nls.control(maxiter=2000))
-        params <- coef(fit)
-        plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
-        lines(x, f(x, params[1], params[2], params[3], params[4], params[5]), col = "red")
-        dev.off()
-    }
+# j = 2
+# title = paste0(name,"\n",coe_name[[j]])
+# filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
+# png(filename, width = 1344, height = 914 )
+# x = c(1:55)
+# f <- function(x, a, b, c, d, e) {
+#      a * sin(b * x) + c * cos(d * x) + e
+#     # (a * sin(b * x)) + c
+# }
+# fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d, e), start = list(a =  2, b = 2, c = 2, d =  2, e = 0),  control=nls.control(maxiter=10000))
+# params <- coef(fit)
+# print(params)
+# plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
+# lines(x, f(x, params[1], params[2], params[3] ,params[4], params[5]), col = "red")
+# dev.off()
+
+j = 2
+title = paste0(name,"\n",coe_name[[j]])
+filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
+png(filename, width = 1344, height = 914 )
+x = c(1:55)
+f <- function(x, a, b, c, d) {
+    #  a * sin(b * x) + c * cos(d * x) + e
+    (a * sin((b * x) + c)) + d
+}
+fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  2, b = 2, c = -0.5, d = 0),  control=nls.control(maxiter=10000))
+params <- coef(fit)
+print(params)
+plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
+lines(x, f(x, params[1], params[2], params[3] ,params[4]), col = "red")
+dev.off()
+
+
+
+
+
+#     for(j in seq(1, 15, by = 1)){
+#         if(name == "NDT_soft" && j >= 9){
+#             break
+#         }
+#         if(name == "NDT_hard" && j >= 9){
+#             break
+#         }
+#         title = paste0(name,"\n",coe_name[[j]])
+#         filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
+#         png(filename, width = 1344, height = 914 )
+#         x = c(1:55)
+#         f <- function(x, a, b, c) {
+#             # a * sin(b * x) + c * cos(d * x) + e
+#             a * sin(b * x) + c
+#         }
+#         fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c), start = list(a = 10, b = 10, c = 10),  control=nls.control(maxiter=2000))
+#         params <- coef(fit)
+#         print(params)
+#         plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
+#         lines(x, f(x, params[1], params[2], params[3]), col = "red")
+#         dev.off()
+#     }
 }
