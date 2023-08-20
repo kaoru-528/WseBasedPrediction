@@ -85,7 +85,7 @@ createGraph = function(data, name){
 # lines(x, f(x, params[1], params[2], params[3] ,params[4], params[5]), col = "red")
 # dev.off()
 
-j = 2
+j = 1
 title = paste0(name,"\n",coe_name[[j]])
 filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
 png(filename, width = 1344, height = 914 )
