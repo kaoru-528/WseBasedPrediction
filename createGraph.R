@@ -1,4 +1,6 @@
 createGraph = function(data, name){
+
+    # definition of data
     Cs = data$Cs
     Ds = data$Ds
     dDs = data$Denoise_Ds
@@ -24,6 +26,7 @@ createGraph = function(data, name){
     coe = list()
     coe_name = list("C[4][1]","D[1][1]","D[1][2]","D[1][3]","D[1][4]","D[2][1]","D[2][2]","D[3][1]","Donise_D[1][1]","Donise_D[1][2]","Donise_D[1][3]","Donise_D[1][4]","Donise_D[2][1]","Donise_D[2][2]","Donise_D[3][1]")
 
+# assignment for sub-data
     # j = 1
     # for(i in seq(1, 62, by=8)){
     #     tmp_Cs = c(tmp_Cs,Cs[i])
@@ -85,21 +88,30 @@ createGraph = function(data, name){
 # lines(x, f(x, params[1], params[2], params[3] ,params[4], params[5]), col = "red")
 # dev.off()
 
-j = 1
-title = paste0(name,"\n",coe_name[[j]])
-filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
-png(filename, width = 1344, height = 914 )
+
 x = c(1:55)
 f <- function(x, a, b, c, d) {
-    #  a * sin(b * x) + c * cos(d * x) + e
     (a * sin((b * x) + c)) + d
 }
-fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  2, b = 2, c = -0.5, d = 0),  control=nls.control(maxiter=10000))
-params <- coef(fit)
-print(params)
-plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
-lines(x, f(x, params[1], params[2], params[3] ,params[4]), col = "red")
-dev.off()
+for(sub_a in seq(1, 5, by = 1)){
+    for(sub_b in seq(1, 3, by = 1)){
+        for(sub_c in seq(-1, 1, by = 0.1)){
+            for(sub_d in seq(5, 10, by = 1)){
+                j = 1
+                title = paste0(name,"\n",coe_name[[j]])
+                filename = paste0("OUTPUT/",sub_a,"_",sub_b,"_",sub_c,"_",sub_d,".png")
+                png(filename, width = 1344, height = 914 )
+                fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
+                params <- coef(fit)
+                print(params)
+                plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
+                lines(x, f(x, params[1], params[2], params[3] ,params[4]), col = "red")
+                dev.off()
+            }
+        }
+    }
+}
+
 
 
 
