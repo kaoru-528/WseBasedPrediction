@@ -9,11 +9,17 @@ load(dataPath2)
 createGraph_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/createGraph.R")
 source(createGraph_Path)
 
+# Load creating graph module
+regression_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/regression.R")
+source(regression_Path)
+
 # name = "NDT_soft"
 # createGraph(soft, name)
 # name = "NDT_hard"
 # createGraph(hard, name)
 name = "Ans_A1_ut_hard"
-ans = createGraph(ut_hard, name)
+# createGraph(ut_hard, name)
+ans = regression(ut_hard, name)
+
 # name = "Ans_A1_ut_soft"
 # createGraph(ut_soft, name)
