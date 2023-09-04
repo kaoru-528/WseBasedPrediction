@@ -63,17 +63,17 @@ f <- function(x, a, b, c, d) {
     (a * sin((b * x) + c)) + d
 }
 
-# # testing 
-# j = 8
-# title = paste0(name,"\n",coe_name[[j]])
-# filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
-# png(filename, width = 1344, height = 914 )
-# fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  3.1, b = 1.6, c = 0.6, d = 1),control=nls.control(warnOnly=TRUE))
-# params <- coef(fit)
-# print(params)
-# plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
-# lines(x, f(x, params[1], params[2], params[3] ,params[4]), col = "red")
-# dev.off()
+# testing 
+j = 1
+title = paste0(name,"\n",coe_name[[j]])
+filename = paste0("OUTPUT/",name,"_",coe_name[[j]],".png")
+png(filename, width = 1344, height = 914 )
+fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  3.1, b = 1.6, c = 0.6, d = 1),control=nls.control(warnOnly=TRUE))
+params <- coef(fit)
+print(params)
+plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
+lines(x, f(x, params[1], params[2], params[3] ,params[4]), col = "red")
+dev.off()
 
 
 # # C[4][1]
@@ -172,24 +172,24 @@ f <- function(x, a, b, c, d) {
 #     }
 # }
 
-j = 6
-for(sub_a in seq(1.5, 2.5, by = 0.1)){
-    for(sub_b in seq(0.5, 1.5, by = 0.1)){
-        for(sub_c in seq(0, 0.5, by = 0.1)){
-            for(sub_d in seq(0, 0.5, by = 0.1)){
-                title = paste0(name,"\n",coe_name[[j]])
-                filename = paste0("OUTPUT/",sub_a,"_",sub_b,"_",sub_c,"_",sub_d,".png")
-                png(filename, width = 1344, height = 914 )
-                fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
-                params <- coef(fit)
-                # print(params)
-                plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
-                lines(x, f(x, params[1], params[2], params[3] ,params[4]), col = "red")
-                dev.off()
-            }
-        }
-    }
-}
+# j = 6
+# for(sub_a in seq(1.5, 2.5, by = 0.1)){
+#     for(sub_b in seq(0.5, 1.5, by = 0.1)){
+#         for(sub_c in seq(0, 0.5, by = 0.1)){
+#             for(sub_d in seq(0, 0.5, by = 0.1)){
+#                 title = paste0(name,"\n",coe_name[[j]])
+#                 filename = paste0("OUTPUT/",sub_a,"_",sub_b,"_",sub_c,"_",sub_d,".png")
+#                 png(filename, width = 1344, height = 914 )
+#                 fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
+#                 params <- coef(fit)
+#                 # print(params)
+#                 plot(x, coe[[j]],main = title, xlab = "number", ylab = "C", pch = 16, col = "blue", type = "b")
+#                 lines(x, f(x, params[1], params[2], params[3] ,params[4]), col = "red")
+#                 dev.off()
+#             }
+#         }
+#     }
+# }
 
 # D[4][1]
 # j = 8
