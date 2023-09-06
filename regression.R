@@ -66,14 +66,14 @@ f <- function(x, a, b, c, d) {
     (a * sin((b * x) + c)) + d
 }
 
-data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
 sort_data = list()
 
 for(j in seq(1, 8, by = 1)){
-    for(sub_a in seq(-10, 10, by = 0.1)){
-        for(sub_b in seq(-10, 10, by = 0.1)){
-            for(sub_c in seq(-10, 10, by = 0.1)){
-                for(sub_d in seq(-10, 10, by = 0.1)){
+    data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
+    for(sub_a in seq(5, 10, by = 1)){
+        for(sub_b in seq(5, 10, by = 1)){
+            for(sub_c in seq(5, 10, by = 1)){
+                for(sub_d in seq(5, 10, by = 1)){
                     fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
                     params = coef(fit)
                     pre = f(x, params[1], params[2], params[3] ,params[4])
@@ -86,7 +86,9 @@ for(j in seq(1, 8, by = 1)){
     }
     row.names(data) = NULL
     sort_data[[j]] = data[order(data$mse, decreasing = F),]
-    print(j, "is done!")
+    print(j)
+    rm(data)
+    rm(add_data)
 }
 return(sort_data)
 }
