@@ -65,7 +65,6 @@ x = c(1:55)
 f <- function(x, a, b, c, d) {
     (a * sin((b * x) + c)) + d
 }
-
 sort_data = list()
 
 for(j in seq(1, 8, by = 1)){
