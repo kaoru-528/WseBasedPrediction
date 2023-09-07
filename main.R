@@ -148,8 +148,6 @@ D_3_1 = f(y,sort_data[[8]]$a[[8]],sort_data[[8]]$b[[8]],sort_data[[8]]$c[[8]],so
 
 
 for (k in seq(1, length(Ds), by=1)) {
-    # pre_cs リストの各要素に [4] および [1] のサブ要素を持たせる
-    pre_cs[[k]] <- list(list(NULL, NULL, NULL, NULL))
     
     # pre_cs リストにデータを追加
     Cs[[k]][[4]][1] <- C_4_1[k]
@@ -170,7 +168,7 @@ i_groups = inverseHaarWaveletTransformForGroups(Cs,Ds)
   
 # Perform moving average
 #print("Perform moving average")
-a_idata = movingAverage(i_groups,63)
+a_idata = movingAverage(i_groups,62)
   
 # Perform inverse Anscombe data conversion
 idata = inverseAnscombeTransformFromGroup(a_idata,1);
