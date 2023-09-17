@@ -154,17 +154,24 @@ ThresholdForOneLevel = function(WaveletCoefficients,mode,t)
 #Thresholding of the value coe according to the threshold r
 Threshold = function(coe,r,mode)
 {
-	if(abs(coe) <= r)
-	{
-	    return(0)
-	}
 	if(mode == 'h')
 	{
+		if(abs(coe) <= r)
+		{
+	    return(0)
+		}
+		else
+		{
 	    return(coe)
+		}
 	}
 	else
 	{
-	    if(coe > 0)
+		if(abs(coe) <= r)
+		{
+	    return(0)
+		}
+	    else if(coe > 0)
 	    {
 	        return(coe - r)
 	    }

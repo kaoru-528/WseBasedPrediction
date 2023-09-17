@@ -1,3 +1,8 @@
+# # when you run this program for the first time, you have to install thire packages
+# install.packages(tictoc)
+# install.packages(doParallel)
+# install.packages(foreach)
+
 # Load data set
 dataPath1 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/NDT_WSE/NDT_J=3.RData")
 load(dataPath1)
@@ -20,6 +25,10 @@ source(WaveletTransform_Path)
 DT_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DataTransform.R")
 source(DT_Path)
 
+# Load Threshold Module
+Threshold_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/Threshold.R")
+source(Threshold_Path)
+
 # name = "NDT_soft"
 # createGraph(soft, name)
 # name = "NDT_hard"
@@ -33,8 +42,8 @@ source(DT_Path)
 # createGraph(ut_soft, name)
 
 # Load necessary libraries
-# library(doParallel)
-# library(foreach)
+library(doParallel)
+library(foreach)
 
 # Set the number of CPU cores to use
 num_cores <- detectCores()
@@ -102,14 +111,41 @@ f <- function(x, a, b, c, d) {
 # start cal execution time
 tic()
 
+# # cal coe in regression function
+# run_regression <- function(j) {
+#     x = c(1:47)
+#     a_data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
+#     coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
+#     for(sub_a in seq(0.1, 5, by = 0.1)){
+#         for(sub_b in seq(0.1, 5, by = 0.1)){
+#             for(sub_c in seq(-10, 0.5, by = 0.1)){
+#                 for(sub_d in seq(-10, 10, by = 0.1)){
+#                     fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
+#                     params = coef(fit)
+#                     pre = f(x, params[1], params[2], params[3], params[4])
+#                     mse = mean((unlist(coe[[j]]) - pre)^2)
+#                     add_data = data.frame(mse = mse, a = params[1], b = params[2], c = params[3], d = params[4])
+#                     a_data = rbind(a_data, add_data)
+#                 }
+#             }
+#         }
+#     }
+
+#     row.names(a_data) = NULL
+#     a_data = a_data[order(a_data$mse, decreasing = F),]
+#     return(a_data)
+# }
+
+
+# cal coe in regression function
 run_regression <- function(j) {
     x = c(1:47)
     a_data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
     coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
-    for(sub_a in seq(0.1, 5, by = 0.1)){
-        for(sub_b in seq(0.1, 5, by = 0.1)){
-            for(sub_c in seq(-10, 0.5, by = 0.1)){
-                for(sub_d in seq(-10, 10, by = 0.1)){
+    for(sub_a in seq(1.5, 2.5, by = 0.1)){
+        for(sub_b in seq(0.5, 1.5, by = 0.1)){
+            for(sub_c in seq(0, 0.5, by = 0.1)){
+                for(sub_d in seq(0, 0.5, by = 0.1)){
                     fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
                     params = coef(fit)
                     pre = f(x, params[1], params[2], params[3], params[4])
@@ -126,37 +162,38 @@ run_regression <- function(j) {
     return(a_data)
 }
 
-# Use foreach for parallel processing
+# Use foreach for parallel processing easyliy
 sort_data <- foreach(j = seq(1, 8, by = 1)) %dopar% run_regression(j)
 
 # stop cal execution time
 toc()
 
-# y = c(1:55)
-# C_4_1 = f(y,sort_data[[1]]$a[[1]],sort_data[[1]]$b[[1]],sort_data[[1]]$c[[1]],sort_data[[1]]$d[[1]])
-# D_1_1 = f(y,sort_data[[2]]$a[[2]],sort_data[[2]]$b[[2]],sort_data[[2]]$c[[2]],sort_data[[2]]$d[[2]])
-# D_1_2 = f(y,sort_data[[3]]$a[[3]],sort_data[[3]]$b[[3]],sort_data[[3]]$c[[3]],sort_data[[3]]$d[[3]])
-# D_1_3 = f(y,sort_data[[4]]$a[[4]],sort_data[[4]]$b[[4]],sort_data[[4]]$c[[4]],sort_data[[4]]$d[[4]])
-# D_1_4 = f(y,sort_data[[5]]$a[[5]],sort_data[[5]]$b[[5]],sort_data[[5]]$c[[5]],sort_data[[5]]$d[[5]])
-# D_2_1 = f(y,sort_data[[6]]$a[[6]],sort_data[[6]]$b[[6]],sort_data[[6]]$c[[6]],sort_data[[6]]$d[[6]])
-# D_2_2 = f(y,sort_data[[7]]$a[[7]],sort_data[[7]]$b[[7]],sort_data[[7]]$c[[7]],sort_data[[7]]$d[[7]])
-# D_3_1 = f(y,sort_data[[8]]$a[[8]],sort_data[[8]]$b[[8]],sort_data[[8]]$c[[8]],sort_data[[8]]$d[[8]])
+y = c(1:55)
+C_4_1 = f(y,sort_data[[1]]$a[[1]],sort_data[[1]]$b[[1]],sort_data[[1]]$c[[1]],sort_data[[1]]$d[[1]])
+D_1_1 = f(y,sort_data[[2]]$a[[2]],sort_data[[2]]$b[[2]],sort_data[[2]]$c[[2]],sort_data[[2]]$d[[2]])
+D_1_2 = f(y,sort_data[[3]]$a[[3]],sort_data[[3]]$b[[3]],sort_data[[3]]$c[[3]],sort_data[[3]]$d[[3]])
+D_1_3 = f(y,sort_data[[4]]$a[[4]],sort_data[[4]]$b[[4]],sort_data[[4]]$c[[4]],sort_data[[4]]$d[[4]])
+D_1_4 = f(y,sort_data[[5]]$a[[5]],sort_data[[5]]$b[[5]],sort_data[[5]]$c[[5]],sort_data[[5]]$d[[5]])
+D_2_1 = f(y,sort_data[[6]]$a[[6]],sort_data[[6]]$b[[6]],sort_data[[6]]$c[[6]],sort_data[[6]]$d[[6]])
+D_2_2 = f(y,sort_data[[7]]$a[[7]],sort_data[[7]]$b[[7]],sort_data[[7]]$c[[7]],sort_data[[7]]$d[[7]])
+D_3_1 = f(y,sort_data[[8]]$a[[8]],sort_data[[8]]$b[[8]],sort_data[[8]]$c[[8]],sort_data[[8]]$d[[8]])
 
 
-# Cs[[55]][[4]][1] <- C_4_1[55]
+Cs[[55]][[4]][1] <- C_4_1[55]
 
-# # pre_ds リストの各要素にデータを追加
-# Ds[[55]][[2]][1] <- D_1_1[[55]]
-# Ds[[55]][[2]][2] <- D_1_2[[55]]
-# Ds[[55]][[2]][3] <- D_1_3[[55]]
-# Ds[[55]][[2]][4] <- D_1_4[[55]]
-# Ds[[55]][[3]][1] <- D_2_1[[55]]
-# Ds[[55]][[3]][2] <- D_2_2[[55]]
-# Ds[[55]][[4]][1] <- D_3_1[[55]]
+Ds[[55]][[2]][1] <- D_1_1[[55]]
+Ds[[55]][[2]][2] <- D_1_2[[55]]
+Ds[[55]][[2]][3] <- D_1_3[[55]]
+Ds[[55]][[2]][4] <- D_1_4[[55]]
+Ds[[55]][[3]][1] <- D_2_1[[55]]
+Ds[[55]][[3]][2] <- D_2_2[[55]]
+Ds[[55]][[4]][1] <- D_3_1[[55]]
 
-# i_groups = inverseHaarWaveletTransformForGroups(Cs,Ds)
+Denoise_Ds = ThresholdForGroups(Ds,"h","ut")
+
+i_groups = inverseHaarWaveletTransformForGroups(Cs,Denoise_Ds)
   
-# a_idata = movingAverage(i_groups,62)
+a_idata = movingAverage(i_groups,62)
   
-# # Perform inverse Anscombe data conversion
-# idata = inverseAnscombeTransformFromGroup(a_idata,1);
+# Perform inverse Anscombe data conversion
+idata = inverseAnscombeTransformFromGroup(a_idata,1);
