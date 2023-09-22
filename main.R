@@ -44,6 +44,7 @@ source(Threshold_Path)
 # Load necessary libraries
 library(doParallel)
 library(foreach)
+library(tictoc)
 
 # Set the number of CPU cores to use
 num_cores <- detectCores()
@@ -103,7 +104,7 @@ tmp_dDs_4_1 = c(tmp_dDs_4_1,dDs[[i]][[4]][1])
 coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
 
 # regression function
-x = c(1:47)
+x = c(1:49)
 f <- function(x, a, b, c, d) {
     (a * sin((b * x) + c)) + d
 }
@@ -168,7 +169,7 @@ sort_data <- foreach(j = seq(1, 8, by = 1)) %dopar% run_regression(j)
 # stop cal execution time
 toc()
 
-y = c(1:55)
+y = c(1:57)
 C_4_1 = f(y,sort_data[[1]]$a[[1]],sort_data[[1]]$b[[1]],sort_data[[1]]$c[[1]],sort_data[[1]]$d[[1]])
 D_1_1 = f(y,sort_data[[2]]$a[[2]],sort_data[[2]]$b[[2]],sort_data[[2]]$c[[2]],sort_data[[2]]$d[[2]])
 D_1_2 = f(y,sort_data[[3]]$a[[3]],sort_data[[3]]$b[[3]],sort_data[[3]]$c[[3]],sort_data[[3]]$d[[3]])
