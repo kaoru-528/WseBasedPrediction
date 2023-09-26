@@ -45,6 +45,7 @@ source(Threshold_Path)
 library(doParallel)
 library(foreach)
 library(tictoc)
+library(progressr)
 
 # Set the number of CPU cores to use
 num_cores <- detectCores()
@@ -109,17 +110,16 @@ f <- function(x, a, b, c, d) {
     (a * sin((b * x) + c)) + d
 }
 
-# start cal execution time
-tic()
 
-# # cal coe in regression function
+
+# # cal coe in regression function strictly
 # run_regression <- function(j) {
 #     x = c(1:47)
 #     a_data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
 #     coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
 #     for(sub_a in seq(0.1, 5, by = 0.1)){
 #         for(sub_b in seq(0.1, 5, by = 0.1)){
-#             for(sub_c in seq(-10, 0.5, by = 0.1)){
+#             for(sub_c in seq(-10, 10, by = 0.1)){
 #                 for(sub_d in seq(-10, 10, by = 0.1)){
 #                     fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
 #                     params = coef(fit)
@@ -131,7 +131,6 @@ tic()
 #             }
 #         }
 #     }
-
 #     row.names(a_data) = NULL
 #     a_data = a_data[order(a_data$mse, decreasing = F),]
 #     return(a_data)
@@ -163,13 +162,14 @@ run_regression <- function(j) {
     return(a_data)
 }
 
+# start cal execution time
+tic()
 # Use foreach for parallel processing easyliy
 sort_data <- foreach(j = seq(1, 8, by = 1)) %dopar% run_regression(j)
-
 # stop cal execution time
 toc()
 
-y = c(1:57)
+y = c(1:55)
 C_4_1 = f(y,sort_data[[1]]$a[[1]],sort_data[[1]]$b[[1]],sort_data[[1]]$c[[1]],sort_data[[1]]$d[[1]])
 D_1_1 = f(y,sort_data[[2]]$a[[2]],sort_data[[2]]$b[[2]],sort_data[[2]]$c[[2]],sort_data[[2]]$d[[2]])
 D_1_2 = f(y,sort_data[[3]]$a[[3]],sort_data[[3]]$b[[3]],sort_data[[3]]$c[[3]],sort_data[[3]]$d[[3]])
@@ -179,16 +179,17 @@ D_2_1 = f(y,sort_data[[6]]$a[[6]],sort_data[[6]]$b[[6]],sort_data[[6]]$c[[6]],so
 D_2_2 = f(y,sort_data[[7]]$a[[7]],sort_data[[7]]$b[[7]],sort_data[[7]]$c[[7]],sort_data[[7]]$d[[7]])
 D_3_1 = f(y,sort_data[[8]]$a[[8]],sort_data[[8]]$b[[8]],sort_data[[8]]$c[[8]],sort_data[[8]]$d[[8]])
 
+for(k in seq(48, 55, by = 1)){
+    Cs[[k]][[4]][1] <- C_4_1[k]
 
-Cs[[55]][[4]][1] <- C_4_1[55]
-
-Ds[[55]][[2]][1] <- D_1_1[[55]]
-Ds[[55]][[2]][2] <- D_1_2[[55]]
-Ds[[55]][[2]][3] <- D_1_3[[55]]
-Ds[[55]][[2]][4] <- D_1_4[[55]]
-Ds[[55]][[3]][1] <- D_2_1[[55]]
-Ds[[55]][[3]][2] <- D_2_2[[55]]
-Ds[[55]][[4]][1] <- D_3_1[[55]]
+    Ds[[k]][[2]][1] <- D_1_1[[k]]
+    Ds[[k]][[2]][2] <- D_1_2[[k]]
+    Ds[[k]][[2]][3] <- D_1_3[[k]]
+    Ds[[k]][[2]][4] <- D_1_4[[k]]
+    Ds[[k]][[3]][1] <- D_2_1[[k]]
+    Ds[[k]][[3]][2] <- D_2_2[[k]]
+    Ds[[k]][[4]][1] <- D_3_1[[k]]
+}
 
 Denoise_Ds = ThresholdForGroups(Ds,"h","ut")
 
