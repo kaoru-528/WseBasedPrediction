@@ -45,7 +45,9 @@ source(Threshold_Path)
 library(doParallel)
 library(foreach)
 library(tictoc)
-library(progressr)
+
+# you can set the prediction term
+prediction_term = 8
 
 # Set the number of CPU cores to use
 num_cores <- detectCores()
@@ -57,6 +59,11 @@ data = ut_hard
 Cs = data$Cs
 Ds = data$Ds
 dDs = data$Denoise_Ds
+
+# you can set the prediction term
+prediction_term = 8
+
+coe_length = length(Cs)
 
 tmp_Cs_4_1 = list()
 
@@ -81,7 +88,7 @@ coe = list()
 coe_name = list("C[4][1]","D[1][1]","D[1][2]","D[1][3]","D[1][4]","D[2][1]","D[2][2]","D[3][1]","Donise_D[1][1]","Donise_D[1][2]","Donise_D[1][3]","Donise_D[1][4]","Donise_D[2][1]","Donise_D[2][2]","Donise_D[3][1]")
 
 
-for(i in seq(1, length(Ds) - 8, by=1)){
+for(i in seq(1, length(Ds) - prediction_term, by=1)){
 tmp_Cs_4_1 = c(tmp_Cs_4_1,Cs[[i]][[4]][1])
 
 tmp_Ds_2_1 = c(tmp_Ds_2_1,Ds[[i]][[2]][1])
@@ -104,8 +111,9 @@ tmp_dDs_4_1 = c(tmp_dDs_4_1,dDs[[i]][[4]][1])
 # coe_list
 coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
 
+
+
 # regression function
-x = c(1:49)
 f <- function(x, a, b, c, d) {
     (a * sin((b * x) + c)) + d
 }
@@ -139,13 +147,13 @@ f <- function(x, a, b, c, d) {
 
 # cal coe in regression function
 run_regression <- function(j) {
-    x = c(1:47)
+    x = c(1:(coe_length - prediction_term))
     a_data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
     coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
-    for(sub_a in seq(1.5, 2.5, by = 0.1)){
-        for(sub_b in seq(0.5, 1.5, by = 0.1)){
-            for(sub_c in seq(0, 0.5, by = 0.1)){
-                for(sub_d in seq(0, 0.5, by = 0.1)){
+    for(sub_a in seq(0.1, 0.2, by = 0.1)){
+        for(sub_b in seq(0.1, 0.2, by = 0.1)){
+            for(sub_c in seq(-1, 1, by = 0.1)){
+                for(sub_d in seq(-1, 1, by = 0.1)){
                     fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
                     params = coef(fit)
                     pre = f(x, params[1], params[2], params[3], params[4])
@@ -179,7 +187,7 @@ D_2_1 = f(y,sort_data[[6]]$a[[6]],sort_data[[6]]$b[[6]],sort_data[[6]]$c[[6]],so
 D_2_2 = f(y,sort_data[[7]]$a[[7]],sort_data[[7]]$b[[7]],sort_data[[7]]$c[[7]],sort_data[[7]]$d[[7]])
 D_3_1 = f(y,sort_data[[8]]$a[[8]],sort_data[[8]]$b[[8]],sort_data[[8]]$c[[8]],sort_data[[8]]$d[[8]])
 
-for(k in seq(48, 55, by = 1)){
+for(k in seq(coe_length - prediction_term + 1, coe_length, by = 1)){
     Cs[[k]][[4]][1] <- C_4_1[k]
 
     Ds[[k]][[2]][1] <- D_1_1[[k]]
@@ -198,4 +206,4 @@ i_groups = inverseHaarWaveletTransformForGroups(Cs,Denoise_Ds)
 a_idata = movingAverage(i_groups,62)
   
 # Perform inverse Anscombe data conversion
-idata = inverseAnscombeTransformFromGroup(a_idata,1);
+idata = inverseAnscombeTransformFromGroup(a_idata,1)
