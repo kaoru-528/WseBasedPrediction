@@ -150,10 +150,10 @@ run_regression <- function(j) {
     x = c(1:(coe_length - prediction_term))
     a_data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
     coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
-    for(sub_a in seq(0.1, 0.2, by = 0.1)){
-        for(sub_b in seq(0.1, 0.2, by = 0.1)){
+    for(sub_a in seq(0.1, 5, by = 0.1)){
+        for(sub_b in seq(0.1, 5, by = 0.1)){
             for(sub_c in seq(-1, 1, by = 0.1)){
-                for(sub_d in seq(-1, 1, by = 0.1)){
+                for(sub_d in seq(0, 10, by = 0.1)){
                     fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
                     params = coef(fit)
                     pre = f(x, params[1], params[2], params[3], params[4])
