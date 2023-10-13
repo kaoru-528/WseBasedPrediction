@@ -113,33 +113,6 @@ f <- function(x, a, b, c, d) {
     (a * sin((b * x) + c)) + d
 }
 
-
-
-# # cal coe in regression function strictly
-# run_regression <- function(j) {
-#     x = c(1:47)
-#     a_data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
-#     coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
-#     for(sub_a in seq(0.1, 5, by = 0.1)){
-#         for(sub_b in seq(0.1, 5, by = 0.1)){
-#             for(sub_c in seq(-10, 10, by = 0.1)){
-#                 for(sub_d in seq(-10, 10, by = 0.1)){
-#                     fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
-#                     params = coef(fit)
-#                     pre = f(x, params[1], params[2], params[3], params[4])
-#                     mse = mean((unlist(coe[[j]]) - pre)^2)
-#                     add_data = data.frame(mse = mse, a = params[1], b = params[2], c = params[3], d = params[4])
-#                     a_data = rbind(a_data, add_data)
-#                 }
-#             }
-#         }
-#     }
-#     row.names(a_data) = NULL
-#     a_data = a_data[order(a_data$mse, decreasing = F),]
-#     return(a_data)
-# }
-
-
 # cal coe in regression function
 run_regression <- function(j) {
     x = c(1:(coe_length - prediction_term))
