@@ -1,13 +1,11 @@
 # # when you run this program for the first time, you have to install thire packages
-# install.packages(tictoc)
-# install.packages(doParallel)
-# install.packages(foreach)
+# install.packages("tictoc")
+# install.packages("doParallel")
+# install.packages("foreach")
 
 # Load data set
-dataPath1 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/NDT_WSE/NDT_J=3.RData")
-load(dataPath1)
-dataPath2 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/Ans_A1_J=3.RData")
-load(dataPath2)
+dataPath = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/D1_Ans_A1_J=3.RData")
+load(dataPath)
 
 # Load creating graph module
 createGraph_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/createGraph.R")
@@ -35,9 +33,6 @@ source(Threshold_Path)
 # createGraph(hard, name)
 # name = "Ans_A1_ut_hard"
 # createGraph(ut_hard, name)
-
-# ans = regression(ut_hard, name)
-
 # name = "Ans_A1_ut_soft"
 # createGraph(ut_soft, name)
 
@@ -61,7 +56,7 @@ Ds = data$Ds
 dDs = data$Denoise_Ds
 
 # you can set the prediction term
-prediction_term = 8
+prediction_term = 18
 
 coe_length = length(Cs)
 
@@ -150,10 +145,10 @@ run_regression <- function(j) {
     x = c(1:(coe_length - prediction_term))
     a_data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
     coe = list(tmp_Cs_4_1,tmp_Ds_2_1,tmp_Ds_2_2,tmp_Ds_2_3,tmp_Ds_2_4,tmp_Ds_3_1,tmp_Ds_3_2,tmp_Ds_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
-    for(sub_a in seq(0.1, 5, by = 0.1)){
-        for(sub_b in seq(0.1, 5, by = 0.1)){
-            for(sub_c in seq(-1, 1, by = 0.1)){
-                for(sub_d in seq(0, 10, by = 0.1)){
+    for(sub_a in seq(1, 5, by = 1)){
+        for(sub_b in seq(1, 5, by = 1)){
+            for(sub_c in seq(-1, 1, by = 1)){
+                for(sub_d in seq(0, 7, by = 1)){
                     fit <- nls(unlist(coe[[j]]) ~ f(x, a, b, c, d), start = list(a =  sub_a, b = sub_b, c = sub_c, d = sub_d),control=nls.control(warnOnly=TRUE))
                     params = coef(fit)
                     pre = f(x, params[1], params[2], params[3], params[4])
@@ -202,6 +197,7 @@ for(k in seq(coe_length - prediction_term + 1, coe_length, by = 1)){
 Denoise_Ds = ThresholdForGroups(Ds,"h","ut")
 
 i_groups = inverseHaarWaveletTransformForGroups(Cs,Denoise_Ds)
+i_groups = lapply(i_groups, function(x) x*8**0.5)
   
 a_idata = movingAverage(i_groups,62)
   
