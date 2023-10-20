@@ -1,37 +1,37 @@
+ # # when you run this program for the first time, you have to install thire packages
+# install.packages("tictoc")
+# install.packages("doParallel")
+# install.packages("foreach")
+
+# Load data set
+dataPath1 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/D1_Ans_A1_J=3.RData")
+dataPath2 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/D2_Ans_A1_J=3.RData")
+dataPath3 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/D3_Ans_A1_J=3.RData")
+dataPath4 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/D4_Ans_A1_J=3.RData")
+
+
+# Load creating graph module
+createGraph_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/createGraph.R")
+source(createGraph_Path)
+
+# Load creating regression module
+regression_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/regression.R")
+source(regression_Path)
+
+# Load wavelet conversion module
+WaveletTransform_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/WaveletTransform.R")
+source(WaveletTransform_Path)
+
+# Load data conversion module
+DT_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DataTransform.R")
+source(DT_Path)
+
+# Load Threshold Module
+Threshold_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/Threshold.R")
+source(Threshold_Path)
+
 for(o in seq(1, 3, by = 1) ){
     for(i in seq(1, 4, by = 1)){
-        # # when you run this program for the first time, you have to install thire packages
-        # install.packages("tictoc")
-        # install.packages("doParallel")
-        # install.packages("foreach")
-
-        # Load data set
-        dataPath1 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/D1_Ans_A1_J=3.RData")
-        dataPath2 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/D2_Ans_A1_J=3.RData")
-        dataPath3 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/D3_Ans_A1_J=3.RData")
-        dataPath4 = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DS/DT_Ans_WSE/A1/D4_Ans_A1_J=3.RData")
-
-
-        # Load creating graph module
-        createGraph_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/createGraph.R")
-        source(createGraph_Path)
-
-        # Load creating regression module
-        regression_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/regression.R")
-        source(regression_Path)
-
-        # Load wavelet conversion module
-        WaveletTransform_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/WaveletTransform.R")
-        source(WaveletTransform_Path)
-
-        # Load data conversion module
-        DT_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/DataTransform.R")
-        source(DT_Path)
-
-        # Load Threshold Module
-        Threshold_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/Threshold.R")
-        source(Threshold_Path)
-
         # name = "NDT_soft"
         # createGraph(soft, name)
         # name = "NDT_hard"
