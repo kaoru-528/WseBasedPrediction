@@ -1,4 +1,4 @@
-createGraph = function(name, data, sorted_best_coe,coe_name,coe_length){
+createGraph = function(name, data, sorted_best_coe,coe_name,coe_length,prediction_term){
     for(i in seq(1, 8, by = 1)){
         # definition of data
     Cs = data$Cs
@@ -60,10 +60,10 @@ createGraph = function(name, data, sorted_best_coe,coe_name,coe_length){
         #     break
         # }
         title = paste0(name,"\n",coe_name[[i]])
-        filename_graph = paste0(name,"_",coe_name[[i]], ".png")
+        filename_graph = paste0("./OUTPUT/",name,"_",coe_name[[i]], ".png")
         print(filename_graph)
         png(filename_graph, width = 1344, height = 914 )
-        x = c(1:coe_length)
+        x = c(1:coe_length - prediction_term)
         f <- function(x, a, b, c, d) {
             (a * sin((b * x) + c)) + d
         }
