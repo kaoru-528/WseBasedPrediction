@@ -77,16 +77,14 @@ result = periodicBasedPrediction()
 result
 $predictionData #予測値
 $regressionCoefficient
-| 番号 | 係数 |
-| ------------- | ------------- |
-| 1 | c_0_0 |
-| 2 | Hard thresholding method |
-| 3 | Soft thresholding method |
-| 4 | Hard thresholding method |
-| 5 | Soft thresholding method |
-| 6 | Hard thresholding method |
-| 7 | Soft thresholding method |
-| 8 | Hard thresholding method |
+1  c
+2  d
+3  d
+4  d
+5  d
+6  d
+7  d
+8  d
 ```
 
 ## quadraticBasedPrediction()
