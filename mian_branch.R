@@ -8,7 +8,7 @@ library(doParallel)
 library(foreach)
 library(tictoc)
 
-periodicBasedPrediction_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/periodicBasedPrediction.R")
+periodicBasedPrediction_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/wseBasedPrediction.R")
 source(periodicBasedPrediction_Path)
 
 # Load data
@@ -20,4 +20,5 @@ index = 3
 initThresholdvalue = 1
 predictionPercentage = 0.5
 
-result = periodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
+# result = periodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
+result = quatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
