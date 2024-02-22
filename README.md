@@ -26,9 +26,9 @@ loadData(
 )
 ```
 ## periodicBasedPrediction()
-周期関数をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は後述します.
+回帰関数を周期関数をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は後述します.
 >[!WARNING]
->実行時間は約1.5hです.
+>予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1.5hです.
 ```
 periodicBasedPrediction(
     data =  データセット
@@ -69,15 +69,39 @@ periodicBasedPrediction(
 | s | Soft thresholding method |
 | h | Hard thresholding method |
 
-## quadraticBasedPrediction()
-
-## createResult()
-hard閾値法とsoft閾値法の実行結果を同時に.csvと.Rdata形式で保存する関数です.
+### 実行結果
+`periodicBasedPrediction()`は予測値と回帰関数の回帰係数を返します.
 ```
-createResult(
-    hard = hard閾値法の実行結果,
-    soft = soft閾値法の実行結果,
-    index = 分割データのデータ長を指定(ファイル名に影響),
-    resultPath = 実行結果を格納するパス
+result = periodicBasedPrediction()
+
+result
+$predictionData #予測値
+$regressionCoefficient
+| 番号 | 係数 |
+| ------------- | ------------- |
+| 1 | c_0_0 |
+| 2 | Hard thresholding method |
+| 3 | Soft thresholding method |
+| 4 | Hard thresholding method |
+| 5 | Soft thresholding method |
+| 6 | Hard thresholding method |
+| 7 | Soft thresholding method |
+| 8 | Hard thresholding method |
+```
+
+## quadraticBasedPrediction()
+回帰関数を二次関数をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は`periodicBasedPrediction()`と同様です.
+>[!WARNING]
+>予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1minです.
+```
+periodicBasedPrediction(
+    data =  データセット
+    dt =  ("none", "A1", "A2", "A3", "B1", "B2", "Fi", "Fr"), #データ変換の指定
+    thresholdName = ("ldt", "ut", "lut", "lht"), #閾値決定アルゴリズムの指定
+    thresholdMode = ("h", "s"), #閾値法の指定
+    var = データ変換の際の分散を指定(デフォルトは1),
+    index = 分割データのデータ長を指定(デフォルトは3),
+    initThresholdvalue = 閾値の初期値(適当で良い)
+    predictionPercentage = 予測期間の割合設定
 )
 ```
