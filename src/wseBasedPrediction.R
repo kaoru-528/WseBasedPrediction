@@ -162,8 +162,8 @@ quatraticBasedPrediction = function(data, dt, thresholdName, thresholdMode, inde
   predictionTerm = floor((1 - predictionPercentage) * term)
 
   # Set the number of CPU cores to use
-  num_cores <- detectCores()
-  cl <- makeCluster(num_cores)
+  num_cores = detectCores()
+  cl = makeCluster(num_cores)
   registerDoParallel(cl)
 
   # definition of data
@@ -202,12 +202,12 @@ quatraticBasedPrediction = function(data, dt, thresholdName, thresholdMode, inde
   coe = list(tmp_Cs_4_1,tmp_dDs_2_1,tmp_dDs_2_2,tmp_dDs_2_3,tmp_dDs_2_4,tmp_dDs_3_1,tmp_dDs_3_2,tmp_dDs_4_1)
 
   # regression function
-  f <- function(x, a, b, c) {
+  f = function(x, a, b, c) {
       a * x^2 + b * x + c
   }
 
   # cal coe in regression function
-  run_regression <- function(i) {
+  run_regression = function(i) {
   x = c(1:tmp_num)
   tmp_coe = unlist(coe[[i]])
   a_data = data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric())
@@ -218,7 +218,7 @@ quatraticBasedPrediction = function(data, dt, thresholdName, thresholdMode, inde
       for(sub_a in seq(0, 10, by = 0.5)){
           for(sub_b in seq(0, 10, by = 0.5)){
               for(sub_c in seq(0, 10, by = 0.5)){
-                  fit <- nls(tmp_coe ~ f(x, a, b, c), start = list(a =  sub_a, b = sub_b, c = sub_c), control=nls.control(warnOnly=TRUE))
+                  fit = nls(tmp_coe ~ f(x, a, b, c), start = list(a =  sub_a, b = sub_b, c = sub_c), control=nls.control(warnOnly=TRUE))
                   params = coef(fit)
                   pre = f(x, params[1], params[2], params[3])
                   mse = mean((unlist(coe[[i]]) - pre)^2)
@@ -236,7 +236,7 @@ quatraticBasedPrediction = function(data, dt, thresholdName, thresholdMode, inde
   # start cal execution time
   tic()
   # Use foreach for parallel processing easyliy
-  sorted_best_coe <- foreach(i = seq(1, 8, by = 1)) %dopar% run_regression(i)
+  sorted_best_coe = foreach(i = seq(1, 8, by = 1)) %dopar% run_regression(i)
   # stop parallel processing
   stopCluster(cl)
   # stop cal execution time
@@ -253,15 +253,15 @@ quatraticBasedPrediction = function(data, dt, thresholdName, thresholdMode, inde
   D_3_1 = f(y,sorted_best_coe[[8]]$a[[1]],sorted_best_coe[[8]]$b[[1]],sorted_best_coe[[8]]$c[[1]])
 
   for(k in seq(1, term%/%8+1, by = 1)){
-    Cs[[k]][[4]][1] <- C_4_1[k]
+    Cs[[k]][[4]][1] = C_4_1[k]
 
-    dDs[[k]][[2]][1] <- D_1_1[[k]]
-    dDs[[k]][[2]][2] <- D_1_2[[k]]
-    dDs[[k]][[2]][3] <- D_1_3[[k]]
-    dDs[[k]][[2]][4] <- D_1_4[[k]]
-    dDs[[k]][[3]][1] <- D_2_1[[k]]
-    dDs[[k]][[3]][2] <- D_2_2[[k]]
-    dDs[[k]][[4]][1] <- D_3_1[[k]]
+    dDs[[k]][[2]][1] = D_1_1[[k]]
+    dDs[[k]][[2]][2] = D_1_2[[k]]
+    dDs[[k]][[2]][3] = D_1_3[[k]]
+    dDs[[k]][[2]][4] = D_1_4[[k]]
+    dDs[[k]][[3]][1] = D_2_1[[k]]
+    dDs[[k]][[3]][2] = D_2_2[[k]]
+    dDs[[k]][[4]][1] = D_3_1[[k]]
   }
   i_groups = inverseHaarWaveletTransformForGroups(Cs,dDs)
   i_groups = lapply(i_groups, function(x) x*8**0.5)
