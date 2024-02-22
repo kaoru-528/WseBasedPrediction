@@ -12,7 +12,7 @@ periodicBasedPrediction_Path = paste0(dirname(rstudioapi::getSourceEditorContext
 source(periodicBasedPrediction_Path)
 
 # Load data
-data = loadData(dataPath = "/example/ExampleDS.txt")
+data = loadData(dataPath = "/example/exampleDS.txt")
 dt = "none"
 thresholdName = "ldt"
 thresholdMode = "h"
@@ -20,5 +20,6 @@ index = 3
 initThresholdvalue = 1
 predictionPercentage = 0.5
 
-# result = periodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
-result = quatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
+periodicResult = periodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
+
+quatraticResult = quatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
