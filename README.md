@@ -14,8 +14,8 @@ Author: Kaoru Matsui
 
 詳しい使い方はPeriodicBasedPrediction/Example/exampleUsage.Rをご覧ください．
 
-[!WARNING]
-このプログラムは高速化するために並列処理を実装しています.　8コア以上のcpuを用いることを推奨します.
+>[!WARNING]
+>このプログラムは高速化するために並列処理を実装しています.　8コア以上のcpuを用いることを推奨します.
 
 # wseBasedPredictionで使える各関数について
 ## loadData()
@@ -27,8 +27,8 @@ loadData(
 ```
 ## periodicBasedPrediction()
 周期関数をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は後述します.
-[!WARNING]
-実行時間は約1.5hです.
+>[!WARNING]
+>実行時間は約1.5hです.
 ```
 periodicBasedPrediction(
     data =  データセット
