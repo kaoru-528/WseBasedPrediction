@@ -1,11 +1,11 @@
 # Load wavelet conversion module
-WaveletTransform_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/WaveletTransform.R")
+WaveletTransform_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/waveletTransform.R")
 source(WaveletTransform_Path)
 # Load data conversion module
-DT_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/DataTransform.R")
+DT_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/dataTransform.R")
 source(DT_Path)
 # Load Threshold Module
-Threshold_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/Threshold.R")
+Threshold_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/threshold.R")
 source(Threshold_Path)
 
 # Hal wavelet estimation without data transformation

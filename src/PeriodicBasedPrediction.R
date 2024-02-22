@@ -1,20 +1,17 @@
-# Load creating graph module
-createGraph_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/CreateGraph.R")
-source(createGraph_Path)
 # Load Hal wavelet estimation module
-WSE_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/WaveletShrinkageEstimation.R")
+WSE_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/waveletShrinkageEstimation.R")
 source(WSE_Path)
 # Load wavelet shrin module
-WaveletTransform_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/WaveletTransform.R")
+WaveletTransform_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src/waveletTransform.R")
 source(WaveletTransform_Path)
 # Load data conversion module
-DT_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/DataTransform.R")
+DT_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/dataTransform.R")
 source(DT_Path)
 # Load Threshold Module
-Threshold_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/Threshold.R")
+Threshold_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/threshold.R")
 source(Threshold_Path)
 
-PeriodicBasedPrediction = function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term){
+periodicBasedPrediction = function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term){
   term = length(data)
   data = wse(data = data, dt = "none", thresholdName = "ldt", thresholdMode = "h", index = 3, initThresholdvalue = 1)
   # set the prediction term
