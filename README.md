@@ -25,10 +25,10 @@ loadData(
     dataPath = "データセットのパス"
 )
 ```
-## periodicBasedPrediction()
-回帰関数を周期関数をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は後述します.
+## quadraticBasedPrediction()
+回帰関数を二次関数$a*(x^2+b)+c$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は後述します.
 >[!WARNING]
->予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1.5hです.
+>予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1minです.
 ```
 periodicBasedPrediction(
     data =  データセット
@@ -77,20 +77,21 @@ result = periodicBasedPrediction()
 result
 $predictionData #予測値
 $regressionCoefficient
-1  c
-2  d
-3  d
-4  d
-5  d
-6  d
-7  d
-8  d
+        a         b         c
+1  scaling coefficient c00
+2  denoised wavelet coefficient d30
+3  denoised wavelet coefficient d31
+4  denoised wavelet coefficient d32
+5  denoised wavelet coefficient d33
+6  denoised wavelet coefficient d20
+7  denoised wavelet coefficient d21
+8  denoised wavelet coefficient d30
 ```
 
-## quadraticBasedPrediction()
-回帰関数を二次関数をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は`periodicBasedPrediction()`と同様です.
+## periodicBasedPrediction()
+回帰関数を周期関数$a*sin(b*x+c)+d$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は`quadraticBasedPrediction()`と同様です.
 >[!WARNING]
->予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1minです.
+>予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1.5hです.
 ```
 periodicBasedPrediction(
     data =  データセット
@@ -102,4 +103,22 @@ periodicBasedPrediction(
     initThresholdvalue = 閾値の初期値(適当で良い)
     predictionPercentage = 予測期間の割合設定
 )
+```
+### 実行結果
+`periodicBasedPrediction()`は予測値と回帰関数の回帰係数を返します.
+```
+result = periodicBasedPrediction()
+
+result
+$predictionData #予測値
+$regressionCoefficient
+    a         b         c         d
+1  scaling coefficient c00
+2  wavelet coefficient d30
+3  wavelet coefficient d31
+4  wavelet coefficient d32
+5  wavelet coefficient d33
+6  wavelet coefficient d20
+7  wavelet coefficient d21
+8  wavelet coefficient d30
 ```
