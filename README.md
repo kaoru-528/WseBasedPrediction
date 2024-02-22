@@ -26,7 +26,7 @@ loadData(
 )
 ```
 ## quadraticBasedPrediction()
-回帰関数を二次関数$`a*(x^2+b)+c`$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は後述します.
+回帰関数を二次関数:$`a*(x^2+b)+c`$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は後述します.
 >[!WARNING]
 >予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1minです.
 ```
@@ -70,7 +70,7 @@ periodicBasedPrediction(
 | h | Hard thresholding method |
 
 ### 実行結果
-`periodicBasedPrediction()`は予測値と回帰関数の回帰係数を返します.
+`periodicBasedPrediction()`は予測値と係数の時系列データを回帰した際の最も精度の良い回帰関数の回帰係数を返します.
 ```
 result = periodicBasedPrediction()
 
@@ -89,7 +89,7 @@ $regressionCoefficient
 ```
 
 ## periodicBasedPrediction()
-回帰関数を周期関数$`a*sin(b*x+c)+d`$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は`quadraticBasedPrediction()`と同様です.
+回帰関数を周期関数:$`a*sin(b*x+c)+d`$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は`quadraticBasedPrediction()`と同様です.
 >[!WARNING]
 >予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1.5hです.
 ```
@@ -105,7 +105,7 @@ periodicBasedPrediction(
 )
 ```
 ### 実行結果
-`periodicBasedPrediction()`は予測値と回帰関数の回帰係数を返します.
+`periodicBasedPrediction()`は予測値と係数の時系列データを回帰した際の最も精度の良い回帰関数の回帰係数を返します.
 ```
 result = periodicBasedPrediction()
 
