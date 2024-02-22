@@ -10,12 +10,12 @@ Author: Kaoru Matsui
 | Periodic-based Prediction  | 2023 Matsui  |
 
 # wseBasedPredictionの使い方
-このリポジトリをcloneした後, 必要なパッケージをインストールしてwseBasedPrediction直下で`/src/periodicBasedPrediction.R`をインポートして使用してください.
+このリポジトリをcloneした後, 必要なパッケージをインストールしてwseBasedPrediction直下で`/src/wseBasedPrediction.R`をインポートして使用してください.
 
 詳しい使い方はPeriodicBasedPrediction/Example/exampleUsage.Rをご覧ください．
 
 >[!WARNING]
->このプログラムは高速化するために並列処理を実装しています.　8コア以上のcpuを用いることを推奨します.
+>このプログラムは高速化するために並列処理を実装しています. 8コア以上のcpuを用いることを推奨します.
 
 # wseBasedPredictionで使える各関数について
 ## loadData()
@@ -28,7 +28,7 @@ loadData(
 ## quadraticBasedPrediction()
 回帰関数を二次関数:$`a*(x^2+b)+c`$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は後述します.
 >[!WARNING]
->予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1minです.
+>予測値の精度向上のために,初期値を網羅的に与えています. 実行時間は約1minです.
 ```
 periodicBasedPrediction(
     data =  データセット
@@ -91,12 +91,12 @@ $regressionCoefficient
 ## periodicBasedPrediction()
 回帰関数を周期関数:$`a*sin(b*x+c)+d`$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は`quadraticBasedPrediction()`と同様です.
 >[!WARNING]
->予測値の精度向上のために,初期値を網羅的に与えています.実行時間は約1.5hです.
+>予測値の精度向上のために,初期値を網羅的に与えています. 実行時間は約1.5hです.
 ```
 periodicBasedPrediction(
     data =  データセット
     dt =  ("none", "A1", "A2", "A3", "B1", "B2", "Fi", "Fr"), #データ変換の指定
-    thresholdName = ("ldt", "ut", "lut", "lht"), #閾値決定アルゴリズムの指定
+    thresholdName = ("ldt", "ut", "lut"), #閾値決定アルゴリズムの指定
     thresholdMode = ("h", "s"), #閾値法の指定
     var = データ変換の際の分散を指定(デフォルトは1),
     index = 分割データのデータ長を指定(デフォルトは3),
