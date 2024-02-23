@@ -128,7 +128,7 @@ wse = function(data, dt, thresholdName, thresholdMode, var, index, initThreshold
       else{
         thresholded_data = thresholded_data
       }
-      thresholdedData = list(estimationData=thresholded_data, cs=Cs,ds=Ds, denoiseDs=Denoise_Ds)
+      thresholdedData = list(estimationData=thresholded_data, cs=Cs,ds=Ds, denoisedDs=Denoise_Ds)
     }
 
     return(thresholdedData)
@@ -187,7 +187,7 @@ tipsh = function(data, thresholdMode, var, index)
   
   # Perform moving average
   thresholdedData = movingAverage(thresholdedGroups,dataLength)
-  thresholdedData = list(estimationData=thresholdedData, cs=Cs,ds=Ds, denoiseDs=Denoise_Ds)
+  thresholdedData = list(estimationData=thresholdedData, cs=Cs,ds=Ds, denoisedDs=Denoise_Ds)
   
   # Return Results
   return(thresholdedData)

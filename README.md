@@ -42,20 +42,20 @@ periodicBasedPrediction(
 )
 ```
 ### データ変換
-データ変換は`dt`によって指定することができます. rwseでは次の表のデータ変換が実装されています.
-| 変数名 | 変換名 |
-| ------------- | ------------- |
-| none  | データ変換を行わない  |
-| A1  | Anscombe transformation 1  |
-| A2  | Anscombe transformation 2  |
-| A3  | Anscombe transformation 3  |
-| B1  | Bartlet transformation 1  |
-| B2  | Bartlet transformation 2  |
-| Fi  | Fisz transformation  |
-| Fr  | Freeman transformation |
+データ変換は`dt`によって指定することができます. wseBasedPredictionでは次の表のデータ変換が実装され, 変換式に違いがあります. すべての変換において逆変換の式に違いがあるため, 逆変換の式のみ参考に載せておきます.
+| 変数名 | 変換名 | 逆変換の式 |
+| ------------- | ------------- | ------------- |
+| none  | データ変換を行わない  | 式なし |
+| A1  | Anscombe transformation 1  | $`(s_i^2-3/2)/4`$  |
+| A2  | Anscombe transformation 2  | $`(s_i^2-1/2)/4`$  |
+| A3  | Anscombe transformation 3  | $`(s_i^2)/4+\sqrt{3/2}/(4*s_i)-11/(8*s_i^2)+5*\sqrt{3/2}/(8*s_i^3)-1/8`$  |
+| B1  | Bartlet transformation 1  | $`(b_i^2-2)/4`$  |
+| B2  | Bartlet transformation 2  | $`(b_i^2)/4`$  |
+| Fi  | Fisz transformation  | 複雑なため省略  |
+| Fr  | Freeman transformation |　$`(f_i^2+f_i^{-2}-2)/4`$　|
 
 ### 閾値決定アルゴリズム
-閾値決定アルゴリズムは`thresholdName`によって指定することができます. rwseでは次の表の閾値決定アルゴリズムが実装されています.
+閾値決定アルゴリズムは`thresholdName`によって指定することができます. wseBasedPredictionでは次の表の閾値決定アルゴリズムが実装されています.
 | 変数名 | 閾値決定アルゴリズム名 | 備考 |
 | ------------- | ------------- | ------------- |
 | ldt | Level-dependent-Threshold | dt="none"を指定した場合のみ適用化 |
@@ -65,7 +65,7 @@ periodicBasedPrediction(
 > `lht` は未実装.
 
 ### 閾値法
-閾値法は`thresholdMode`によって指定することができます. rwseでは次の表の閾値法が実装されています.
+閾値法は`thresholdMode`によって指定することができます. wseBasedPredictionでは次の表の閾値法が実装されています.
 | 変数名 | 閾値決定アルゴリズム名 |
 | ------------- | ------------- |
 | s | Soft thresholding method |

@@ -157,7 +157,7 @@ periodicBasedPrediction = function(data, dt, thresholdName, thresholdMode, index
 
 quatraticBasedPrediction = function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term){
   term = length(data)
-  data = wse(data = data, dt = "none", thresholdName = "ldt", thresholdMode = "h", index = 3, initThresholdvalue = 1)
+  data = wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
   # set the prediction term
   predictionTerm = floor((1 - predictionPercentage) * term)
 
@@ -168,7 +168,7 @@ quatraticBasedPrediction = function(data, dt, thresholdName, thresholdMode, inde
 
   # definition of data
   Cs = data$cs
-  dDs = data$denoiseDs
+  dDs = data$denoisedDs
 
   coe_length = length(Cs)
 
