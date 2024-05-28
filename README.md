@@ -1,4 +1,4 @@
-# wseBasedPredictionについて
+# WseBasedPredictionについて
 
 Author: Kaoru Matsui
 
