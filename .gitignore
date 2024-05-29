@@ -3,6 +3,7 @@ DS/
 OUTPUT/
 src/main_experiment
 src/CreateGraph
+src/main.R
 .DS_Store
 .Rhistory
 .RData
