@@ -11,7 +11,7 @@ source(DT_Path)
 Threshold_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/threshold.R")
 source(Threshold_Path)
 
-periodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term) {
+PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term) {
   term <- length(data)
   data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
   # set the prediction term
