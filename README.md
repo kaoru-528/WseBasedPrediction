@@ -2,7 +2,7 @@
 
 Author: Kaoru Matsui
 
-**wseBasedPrediction**は，ソフトウェアフォールト発見数データから，ウェーブレット縮小推定を拡張し,フォールト発見数（欠陥数）を予測するものです．
+**WseBasedPrediction**は，ソフトウェアフォールト発見数データから，ウェーブレット縮小推定を拡張し,フォールト発見数（欠陥数）を予測するものです．
 現在以下の手法が実装されています.
 | 手法名 | 備考 |
 | ------------- | ------------- |
@@ -10,7 +10,7 @@ Author: Kaoru Matsui
 | Periodic-based Prediction  | 2023 Matsui  |
 
 # wseBasedPredictionの使い方
-このリポジトリをcloneした後, 必要なパッケージをインストールしてwseBasedPrediction直下で`/src/wseBasedPrediction.R`をインポートして使用してください.
+このリポジトリをcloneした後, 必要なパッケージをインストールしてwseBasedPrediction直下で`/src/WseBasedPrediction.R`をインポートして使用してください.
 
 詳しい使い方はPeriodicBasedPrediction/Example/exampleUsage.Rをご覧ください．
 
