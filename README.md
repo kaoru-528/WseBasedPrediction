@@ -6,7 +6,7 @@ Author: Kaoru Matsui
 
 - 松井 薫, 肖 霄, “Predicting the number of software faults using wavelets and nonlinear regression ,”日本オペレーションズ・リサーチ学会 2024 年春季研究発表会，3 月 7 日 - 8 日, 2024.
 
-- Kaoru Matsui, Xiao Xiao, “On predicting software intensity using wavelets and nonlinear regression ,” The 3rd International Workshop on Dependable Computing for Complex Systems, June 24 – 27, 2024 - [発表スライド](https://drive.google.com/file/d/1YU_mzj9MkPr99nMFulSWOj3QVM9BrbDL/view?usp=drive_link)
+- Kaoru Matsui, Xiao Xiao, “On predicting software intensity using wavelets and nonlinear regression ,” The 3rd International Workshop on Dependable Computing for Complex Systems, June 24 – 27, 2024 - [発表スライド](https://drive.google.com/file/d/1YU_mzj9MkPr99nMFulSWOj3QVM9BrbDL/view?usp=drive_link), [論文](https://www.computer.org/csdl/proceedings-article/dsn-w/2024/957200a021/1ZNTmnn46ac)
 
 # WseBasedPrediction について
 
