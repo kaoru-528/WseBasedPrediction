@@ -1,9 +1,7 @@
 #自分の研究用に作成したファイルなので, 無視してください.
 DS/
 OUTPUT/
-src/main_experiment
-src/CreateGraph
-src/main.R
+src/main_experiment.R
 .DS_Store
 .Rhistory
 .RData
