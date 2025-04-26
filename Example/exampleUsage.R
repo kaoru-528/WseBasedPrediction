@@ -2,11 +2,13 @@
 # install.packages("tictoc")
 # install.packages("doParallel")
 # install.packages("foreach")
+# install.packages("forecast")
 
 # Load necessary libraries
 library(doParallel)
 library(foreach)
 library(tictoc)
+library(forecast)
 
 periodicBasedPrediction_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/wseBasedPrediction.R")
 source(periodicBasedPrediction_Path)
