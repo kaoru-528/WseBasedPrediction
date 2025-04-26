@@ -1,26 +1,8 @@
-# Load Hal wavelet estimation module
-WSE_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/waveletShrinkageEstimation.R")
-source(WSE_Path)
-# Load wavelet shrin module
-WaveletTransform_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/waveletTransform.R")
-source(WaveletTransform_Path)
-# Load data conversion module
-DT_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/dataTransform.R")
-source(DT_Path)
-# Load Threshold Module
-Threshold_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/threshold.R")
-source(Threshold_Path)
-
 PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term) {
   term <- length(data)
   data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
   # set the prediction term
   predictionTerm <- floor((1 - predictionPercentage) * term)
-
-  # Set the number of CPU cores to use
-  num_cores <- detectCores()
-  cl <- makeCluster(num_cores)
-  registerDoParallel(cl)
 
   # definition of data
   Cs <- data$cs
@@ -57,44 +39,9 @@ PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, inde
   # coe_list
   coe <- list(tmp_Cs_4_1, tmp_Ds_2_1, tmp_Ds_2_2, tmp_Ds_2_3, tmp_Ds_2_4, tmp_Ds_3_1, tmp_Ds_3_2, tmp_Ds_4_1)
 
-  # regression function
-  f <- function(x, a, b, c, d) {
-    (a * sin((b * x) + c)) + d
-  }
-
-  # cal coe in regression function
-  run_regression <- function(j) {
-    x <- c(1:(coeLength - predictionTerm))
-    a_data <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
-    coe <- list(tmp_Cs_4_1, tmp_Ds_2_1, tmp_Ds_2_2, tmp_Ds_2_3, tmp_Ds_2_4, tmp_Ds_3_1, tmp_Ds_3_2, tmp_Ds_4_1)
-    tmp_coe <- unlist(coe[[j]])
-    for (sub_a in seq(0.5, 1, by = 0.5)) {
-      for (sub_b in seq(0.5, 1, by = 0.5)) {
-        for (sub_c in seq(0.5, 1, by = 0.5)) {
-          for (sub_d in seq(0, 1, by = 0.5)) {
-            fit <- nls(tmp_coe ~ f(x, a, b, c, d), start = list(a = sub_a, b = sub_b, c = sub_c, d = sub_d), control = nls.control(warnOnly = TRUE))
-            params <- coef(fit)
-            pre <- f(x, params[1], params[2], params[3], params[4])
-            mse <- mean((unlist(coe[[j]]) - pre)^2)
-            add_data <- data.frame(mse = mse, a = params[1], b = params[2], c = params[3], d = params[4])
-            a_data <- rbind(a_data, add_data)
-          }
-        }
-      }
-    }
-    row.names(a_data) <- NULL
-    a_data <- a_data[order(a_data$mse, decreasing = F), ]
-    return(a_data)
-  }
-
-  # start cal execution time
   tic()
-  # Use foreach for parallel processing easyliy
-  sorted_best_coe <- foreach(j = seq(1, 8, by = 1)) %dopar% run_regression(j)
-  # stop parallel processing
-  stopCluster(cl)
-  # stop cal execution time
-  time <- toc()
+  sorted_best_coe <- run_parallel_regression(coe, coe_length, prediction_term)
+  toc()
 
   y <- c(1:coeLength)
   C_4_1 <- f(y, sorted_best_coe[[1]]$a[[1]], sorted_best_coe[[1]]$b[[1]], sorted_best_coe[[1]]$c[[1]], sorted_best_coe[[1]]$d[[1]])
@@ -155,7 +102,111 @@ PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, inde
   return(predictionData)
 }
 
-quatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term) {
+ArimaBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term) {
+  term <- length(data)
+  data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
+  # set the prediction term
+  predictionTerm <- floor((1 - predictionPercentage) * term)
+
+  # definition of data
+  Cs <- data$cs
+  Ds <- data$ds
+
+  coeLength <- length(Cs)
+
+  tmp_Cs_4_1 <- list()
+
+  tmp_Ds_2_1 <- list()
+  tmp_Ds_2_2 <- list()
+  tmp_Ds_2_3 <- list()
+  tmp_Ds_2_4 <- list()
+  tmp_Ds_3_1 <- list()
+  tmp_Ds_3_2 <- list()
+  tmp_Ds_4_1 <- list()
+
+  coe <- list()
+  # coe_name_list
+  coe_name <- list("C[4][1]", "D[1][1]", "D[1][2]", "D[1][3]", "D[1][4]", "D[2][1]", "D[2][2]", "D[3][1]")
+
+  for (j in seq(1, length(Ds) - predictionTerm, by = 1)) {
+    tmp_Cs_4_1 <- c(tmp_Cs_4_1, Cs[[j]][[4]][1])
+
+    tmp_Ds_2_1 <- c(tmp_Ds_2_1, Ds[[j]][[2]][1])
+    tmp_Ds_2_2 <- c(tmp_Ds_2_2, Ds[[j]][[2]][2])
+    tmp_Ds_2_3 <- c(tmp_Ds_2_3, Ds[[j]][[2]][3])
+    tmp_Ds_2_4 <- c(tmp_Ds_2_4, Ds[[j]][[2]][4])
+    tmp_Ds_3_1 <- c(tmp_Ds_3_1, Ds[[j]][[3]][1])
+    tmp_Ds_3_2 <- c(tmp_Ds_3_2, Ds[[j]][[3]][2])
+    tmp_Ds_4_1 <- c(tmp_Ds_4_1, Ds[[j]][[4]][1])
+  }
+
+  # coe_list
+  coe <- list(tmp_Cs_4_1, tmp_Ds_2_1, tmp_Ds_2_2, tmp_Ds_2_3, tmp_Ds_2_4, tmp_Ds_3_1, tmp_Ds_3_2, tmp_Ds_4_1)
+
+  tic()
+  prediction_result <- run_parallel_arima_regression(coe, coe_length, prediction_term)
+  toc()
+
+  y <- c(1:coeLength)
+  C_4_1 <- c(unlist(coe[[1]]), prediction_result[[1]]$mean)
+  D_1_1 <- c(unlist(coe[[2]]), prediction_result[[2]]$mean)
+  D_1_2 <- c(unlist(coe[[3]]), prediction_result[[3]]$mean)
+  D_1_3 <- c(unlist(coe[[4]]), prediction_result[[4]]$mean)
+  D_1_4 <- c(unlist(coe[[5]]), prediction_result[[5]]$mean)
+  D_2_1 <- c(unlist(coe[[6]]), prediction_result[[6]]$mean)
+  D_2_2 <- c(unlist(coe[[7]]), prediction_result[[7]]$mean)
+  D_3_1 <- c(unlist(coe[[8]]), prediction_result[[8]]$mean)
+
+  for (k in seq(coeLength - predictionTerm + 1, coeLength, by = 1)) {
+    Cs[[k]][[4]][1] <- C_4_1[k]
+
+    Ds[[k]][[2]][1] <- D_1_1[[k]]
+    Ds[[k]][[2]][2] <- D_1_2[[k]]
+    Ds[[k]][[2]][3] <- D_1_3[[k]]
+    Ds[[k]][[2]][4] <- D_1_4[[k]]
+    Ds[[k]][[3]][1] <- D_2_1[[k]]
+    Ds[[k]][[3]][2] <- D_2_2[[k]]
+    Ds[[k]][[4]][1] <- D_3_1[[k]]
+  }
+
+
+  denoiseDs <- ThresholdForGroups(Ds = Ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
+
+  i_groups <- inverseHaarWaveletTransformForGroups(Cs, denoiseDs)
+  i_groups <- lapply(i_groups, function(x) x * 8**0.5)
+
+  allData <- movingAverage(i_groups, term)
+
+  if (dt == "A1") {
+    # Perform inverse Anscombe data conversion
+    allData <- inverseAnscombeTransformFromGroup(allData, var)
+  } else if (dt == "A2") {
+    # Perform inverse Anscombe data conversion
+    allData <- inverseAnscombeTransform2FromGroup(allData, var)
+  } else if (dt == "A3") {
+    # Perform inverse Anscombe data conversion
+    allData <- inverseAnscombeTransform3FromGroup(allData, var)
+  } else if (dt == "B1") {
+    # Perform inverse Anscombe data conversion
+    allData <- inverseBartlettTransformFromGroup(allData, var)
+  } else if (dt == "B2") {
+    # Perform inverse Anscombe data conversion
+    allData <- inverseBartlettTransform2FromGroup(allData, var)
+  } else if (dt == "Fr") {
+    allData <- inverseFreemanTransformFromGroup(allData, var)
+  } else {
+    allData <- allData
+  }
+  best_coe <- data.frame(a = numeric(), b = numeric(), c = numeric(), d = numeric())
+  for (m in seq(1, 8, by = 1)) {
+    tmp_best_coe <- data.frame(a = sorted_best_coe[[m]]$a[[1]], b = sorted_best_coe[[m]]$b[[1]], c = sorted_best_coe[[m]]$c[[1]], d = sorted_best_coe[[m]]$d[[1]])
+    best_coe <- rbind(best_coe, tmp_best_coe)
+  }
+  predictionData <- list(predictionData = tail(allData, predictionTerm), regressionCoefficient = best_coe)
+  return(predictionData)
+}
+
+QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term) {
   term <- length(data)
   data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
   # set the prediction term
@@ -294,3 +345,5 @@ quatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, ind
   predictionData <- list(predictionData = tail(allData, predictionTerm), regressionCoefficient = best_coe)
   return(predictionData)
 }
+
+
