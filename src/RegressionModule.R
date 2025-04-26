@@ -53,20 +53,12 @@ run_parallel_regression <- function(coe, coe_length, prediction_term) {
 
 run_arima_regression <- function(j, coe, coe_length, prediction_term) {
     # 対象データの取得
-    tmp_coe <- unlist(coe[[j]])
-    train_data <- tmp_coe[1:(coe_length - prediction_term)]  # 訓練データ
-    test_data <- tmp_coe[(coe_length - prediction_term + 1):coe_length]  # テストデータ
+    train_data <- unlist(coe[[j]])
 
     # ARIMAモデルの適用
-    fit <- auto.arima(tmp_coe)  # 自動的に最適なARIMAモデルを選択
+    fit <- auto.arima(train_data)  # 自動的に最適なARIMAモデルを選択
     forecasted <- forecast(fit, h = prediction_term)  # 予測
 
-    # 平均二乗誤差（MSE）の計算
-    # mse <- mean((test_data - forecasted$mean)^2)
-
-    # 結果をデータフレームで返すsource
-    # result <- data.frame(mse = mse, arima_order = paste(fit$arma[1:3], collapse = "-"))
-    # print(forecasted)
     return(forecasted)
 }
 
@@ -77,12 +69,12 @@ run_parallel_arima_regression <- function(coe, coe_length, prediction_term) {
     registerDoParallel(cl)
 
     # 並列処理でARIMA回帰分析を実行
-    sorted_best_coe <- foreach(j = seq(1, 8), .packages = c("forecast"), .export = c("run_arima_regression")) %dopar% {
+    prediction_result <- foreach(j = seq(1, 8), .packages = c("forecast"), .export = c("run_arima_regression")) %dopar% {
         run_arima_regression(j, coe, coe_length, prediction_term)
     }
 
     # 並列処理の停止
     stopCluster(cl)
 
-    return(sorted_best_coe)
+    return(prediction_result)
 }

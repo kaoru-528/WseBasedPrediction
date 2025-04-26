@@ -40,7 +40,7 @@ PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, inde
   coe <- list(tmp_Cs_4_1, tmp_Ds_2_1, tmp_Ds_2_2, tmp_Ds_2_3, tmp_Ds_2_4, tmp_Ds_3_1, tmp_Ds_3_2, tmp_Ds_4_1)
 
   tic()
-  sorted_best_coe <- run_parallel_regression(coe, coe_length, prediction_term)
+  sorted_best_coe <- run_parallel_regression(coe, coe_length, predictionTerm)
   toc()
 
   y <- c(1:coeLength)
@@ -144,7 +144,7 @@ ArimaBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, 
   coe <- list(tmp_Cs_4_1, tmp_Ds_2_1, tmp_Ds_2_2, tmp_Ds_2_3, tmp_Ds_2_4, tmp_Ds_3_1, tmp_Ds_3_2, tmp_Ds_4_1)
 
   tic()
-  prediction_result <- run_parallel_arima_regression(coe, coe_length, prediction_term)
+  prediction_result <- run_parallel_arima_regression(coe, coe_length, predictionTerm)
   toc()
 
   y <- c(1:coeLength)
@@ -197,13 +197,8 @@ ArimaBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, 
   } else {
     allData <- allData
   }
-  best_coe <- data.frame(a = numeric(), b = numeric(), c = numeric(), d = numeric())
-  for (m in seq(1, 8, by = 1)) {
-    tmp_best_coe <- data.frame(a = sorted_best_coe[[m]]$a[[1]], b = sorted_best_coe[[m]]$b[[1]], c = sorted_best_coe[[m]]$c[[1]], d = sorted_best_coe[[m]]$d[[1]])
-    best_coe <- rbind(best_coe, tmp_best_coe)
-  }
-  predictionData <- list(predictionData = tail(allData, predictionTerm), regressionCoefficient = best_coe)
-  return(predictionData)
+  PredictionData <- list(predictionData = tail(allData, predictionTerm))
+  return(PredictionData)
 }
 
 QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term) {
