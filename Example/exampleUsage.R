@@ -10,6 +10,7 @@ library(foreach)
 library(tictoc)
 library(forecast)
 
+rm(list = ls())
 periodicBasedPrediction_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/wseBasedPrediction.R")
 source(periodicBasedPrediction_Path)
 
@@ -22,8 +23,8 @@ index = 3
 initThresholdvalue = 1
 predictionPercentage = 0.5
 
-PeriodicResult = PeriodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
+PeriodicResult = PeriodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage)
 
-QuatraticResult = QuatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
+QuatraticResult = QuatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage)
 
-ArimaResult = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage, term)
+ArimaResult = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage)
