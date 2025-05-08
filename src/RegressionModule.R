@@ -93,7 +93,11 @@ run_arima_regression <- function(j, coe, coe_length, prediction_term) {
     train_data <- unlist(coe[[j]])
 
     # ARIMAモデルの適用
-    fit <- auto.arima(train_data)  # 自動的に最適なARIMAモデルを選択
+    fit <- auto.arima(train_data,
+            stepwise = FALSE,
+           approximation = FALSE,
+           seasonal = FALSE,
+           trace = TRUE)
     forecasted <- forecast(fit, h = prediction_term)  # 予測
 
     return(forecasted)

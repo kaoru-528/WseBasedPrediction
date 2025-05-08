@@ -54,7 +54,7 @@ PeriodicBasedPrediction(
     var = データ変換の際の分散を指定(デフォルトは1),
     index = 分割データのデータ長を指定(デフォルトは3),
     initThresholdvalue = 閾値の初期値(適当で良い)
-    predictionPercentage = 予測期間の割合設定
+    training_percentage = 学習データの割合設定
 )
 ```
 
@@ -128,7 +128,7 @@ PeriodicBasedPrediction(
     var = データ変換の際の分散を指定(デフォルトは1),
     index = 分割データのデータ長を指定(デフォルトは3),
     initThresholdvalue = 閾値の初期値(適当で良い)
-    predictionPercentage = 予測期間の割合設定
+    training_percentage = 学習データの割合設定
 )
 ```
 

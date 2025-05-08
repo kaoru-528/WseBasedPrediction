@@ -9,7 +9,7 @@ Threshold_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path),"/src
 source(Threshold_Path)
 
 # Hal wavelet estimation without data transformation
-wse = function(data, dt, thresholdName, thresholdMode, var, index, initThresholdvalue)
+wse = function(data, dt, thresholdName, thresholdMode, var = 1, index, initThresholdvalue)
 {
   if(dt == "none" && thresholdName != "ldt"){
     print("Please chack the parameter. If you want to use dt=none, please set thresholdName=ldt.")
