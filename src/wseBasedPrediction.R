@@ -7,6 +7,7 @@ source(CreateGraph_Path)
 
 PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage) {
   term <- length(data)
+  # wseを実行する必要がないが、メソッドを切り出すのがめんどくさいのでcoefficientsを取得するために実行
   data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
   predictionTerm <- floor((1 - training_percentage) * term)
   Cs <- data$cs
@@ -70,7 +71,7 @@ ArimaBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, 
   tic()
   prediction_result <- run_parallel_arima_regression(coefficients_data_for_training, coeLength, predictionTerm)
   time <- toc()
-  createGraphForArima(prediction_result, all_coefficients_data, coeLength, predictionTerm, name)
+  CreateGraphForArimaBasedPrediction(prediction_result, all_coefficients_data, coeLength, predictionTerm, name)
 
   y <- c(1:coeLength)
   C_4_1 <- c(unlist(coefficients_data_for_training[[1]]), prediction_result[[1]]$mean)
@@ -156,19 +157,111 @@ QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, ind
   return(predictionData)
 }
 
-get_all_coefficients_data <- function(Cs, Ds) {
-    tmp_Cs_4_1 <- list()
-    tmp_Ds <- vector("list", 7)  # D[1][1] ~ D[3][1]
+WaveleDecomposePrediction <- function(data, training_percentage, resolution, name){
+  training_data <- data[1:ceiling(length(data) * training_percentage)]
+  prediction_term <- floor((1 - training_percentage) * length(data))
 
-    for (j in seq(1, length(Ds), by = 1)) {
-        tmp_Cs_4_1 <- c(tmp_Cs_4_1, Cs[[j]][[4]][1])
-        for (i in 1:7) {
-            tmp_Ds[[i]] <- c(tmp_Ds[[i]], Ds[[j]][[ceiling(i / 4)]][(i - 1) %% 4 + 1])
+  coefficients <- calculate_wavelet_and_scaling_coefficients(training_data,  resolution)
+  wavelet_coefficients <- coefficients$wavelet_coefficients
+  scaling_coefficients <- coefficients$scaling_coefficients
+
+  all_coefficients <- calculate_wavelet_and_scaling_coefficients(data, resolution)
+  all_wavelet_coefficients <- all_coefficients$wavelet_coefficients
+  all_scaling_coefficients <- all_coefficients$scaling_coefficients
+
+  # 学習データの作成 wavelet係数とスケーリング係数を結合
+  trading_coefficients <- list()
+  all_coefficients_data <- list()
+  for (i in seq(1, resolution + 1)) {
+      if (i == 1) {
+          trading_coefficients[[i]] <- wavelet_coefficients[[resolution + 1]]
+          all_coefficients_data[[i]] <- all_wavelet_coefficients[[resolution + 1]]
+      } else {
+          trading_coefficients[[i]] <- scaling_coefficients[[i]]
+          all_coefficients_data[[i]] <- all_scaling_coefficients[[i]]
+      }
+  }
+
+  # 予測期間を作成
+  coefficients_prediction_term_list <- list()
+  tmp_variant <- 2^ceiling(log2(prediction_term))
+  if ( 2^(resolution+1)> tmp_variant) {
+      tmp_variant <- 2^(resolution+1)
+  }
+  for (i in seq(1, resolution + 1)) {
+      if (i != resolution + 1) {
+          coefficients_prediction_term_list[[i + 1]] <- tmp_variant
+      } else {
+          coefficients_prediction_term_list[[1]] <- tmp_variant
+      }
+    tmp_variant <- tmp_variant / 2
+  }
+
+  num_cores <- detectCores()
+  cl <- makeCluster(num_cores)
+  registerDoParallel(cl)
+
+  # 並列処理でARIMA回帰分析を実行
+  prediction_result <- foreach(j = seq(1, resolution+1), .packages = c("forecast")) %dopar% {
+      training_data <- unlist(trading_coefficients[[j]])
+
+      # ARIMAモデルの適用
+      fit <- auto.arima(
+          training_data,
+          stepwise = FALSE,
+          approximation = FALSE,
+          seasonal = FALSE,
+          trace = TRUE)
+
+      # 予測
+      forecasted <- forecast(fit, h = coefficients_prediction_term_list[[j]])  # 予測
+      return(forecasted)
+  }
+
+  stopCluster(cl)
+
+  CreateGraphForWaveleDecomposePrediction(prediction_result, all_coefficients_data, length(data), prediction_term, name, resolution)
+
+  predinction_wavelet = list()
+  predinction_scaling = list()
+
+  for (i in seq(1, resolution + 1)) {
+    if (i == 1) {
+        predinction_wavelet[[i]] = as.numeric(prediction_result[[i]]$mean)
+    } else {
+        predinction_scaling[[i]] = as.numeric(prediction_result[[i]]$mean)
+    }
+  }
+
+  inverse_data = unlist(predinction_wavelet)
+  for (i in seq(resolution+1, 2, by = -1)) {
+    a = list()
+    for(j in seq(1, length(predinction_scaling[[i]]), by = 1)){
+        if (j == 1){
+            a = inverse_data[ceiling(j/2)] + predinction_scaling[[i]][j]
+        }
+        else{
+            a = append(a,inverse_data[ceiling(j/2)] + predinction_scaling[[i]][j])
         }
     }
+    inverse_data = a
+  }
+  return(inverse_data[1:prediction_term])
+}
 
-    coe <- c(list(tmp_Cs_4_1), tmp_Ds)
-    return(coe)
+get_all_coefficients_data <- function(Cs, Ds) {
+  tmp_Cs_4_1 <- list()
+  tmp_Ds <- vector("list", 7)  # D[1][1] ~ D[3][1]
+
+  for (j in seq(1, length(Ds), by = 1)) {
+      tmp_Cs_4_1 <- c(tmp_Cs_4_1, Cs[[j]][[4]][1])
+      for (i in 1:7) {
+          tmp_Ds[[i]] <- c(tmp_Ds[[i]], Ds[[j]][[ceiling(i / 4)]][(i - 1) %% 4 + 1])
+      }
+  }
+
+  coe <- c(list(tmp_Cs_4_1), tmp_Ds)
+  return(coe)
 }
 
 prepare_data <- function(Cs, Ds, predictionTerm) {
@@ -202,4 +295,34 @@ apply_inverse_transform <- function(allData, dt, var) {
     } else {
         return(allData)
     }
+}
+
+calculate_wavelet_and_scaling_coefficients <- function(training_data, resolution) {
+    wavelet_coefficients <- list()
+    scaling_coefficients <- list()
+
+    # 初期化
+    wavelet_coefficients[[1]] <- training_data
+
+    # Wavelet変換とスケーリング係数の計算
+    for (i in 1:resolution) {
+        if (length(wavelet_coefficients[[i]]) %% 2 != 0) {
+            wavelet_coefficients[[i]][length(wavelet_coefficients[[i]]) + 1] <- wavelet_coefficients[[i]][length(wavelet_coefficients[[i]])]
+        }
+        for (j in seq(1, length(wavelet_coefficients[[i]]) - 1, by = 2)) {
+            if (j == 1) {
+                wavelet_coefficients[[i + 1]] <- (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1]) / 2
+                tmp <- (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1]) / 2
+                scaling_coefficients[[i + 1]] <- wavelet_coefficients[[i]][j] - tmp
+                scaling_coefficients[[i + 1]] <- c(scaling_coefficients[[i + 1]], wavelet_coefficients[[i]][j + 1] - tmp)
+            } else {
+                wavelet_coefficients[[i + 1]] <- c(wavelet_coefficients[[i + 1]], (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1]) / 2)
+                tmp <- (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1]) / 2
+                scaling_coefficients[[i + 1]] <- c(scaling_coefficients[[i + 1]], wavelet_coefficients[[i]][j] - tmp)
+                scaling_coefficients[[i + 1]] <- c(scaling_coefficients[[i + 1]], wavelet_coefficients[[i]][j + 1] - tmp)
+            }
+        }
+    }
+
+    return(list(wavelet_coefficients = wavelet_coefficients, scaling_coefficients = scaling_coefficients))
 }
