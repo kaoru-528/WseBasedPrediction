@@ -5,3 +5,5 @@ src/main_experiment.R
 .DS_Store
 .Rhistory
 .RData
+experiment_A.R
+experiment_B.R
