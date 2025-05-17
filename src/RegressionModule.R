@@ -10,14 +10,15 @@ quadratic_function <- function(x, a, b, c) {
 
 # 回帰実行関数
 run_regression_for_periodic_function <- function(j, coe) {
+    MAX_SEARCH_RANGE <- 1
     tmp_coe <- unlist(coe)
     x <- seq(1, length(tmp_coe))
     model_coe_list <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
 
-    for (sub_a in seq(0.5, 1, by = 0.5)) {
-        for (sub_b in seq(0.5, 1, by = 0.5)) {
-            for (sub_c in seq(0.5, 1, by = 0.5)) {
-                for (sub_d in seq(0, 1, by = 0.5)) {
+    for (sub_a in seq(0.5, MAX_SEARCH_RANGE, by = 0.5)) {
+        for (sub_b in seq(0.5, MAX_SEARCH_RANGE, by = 0.5)) {
+            for (sub_c in seq(0.5, MAX_SEARCH_RANGE, by = 0.5)) {
+                for (sub_d in seq(0, MAX_SEARCH_RANGE, by = 0.5)) {
                   fit <- tryCatch({
                     nls(tmp_coe ~ periodic_function(x, a, b, c, d), start = list(a = sub_a, b = sub_b, c = sub_c, d = sub_d), control = nls.control(warnOnly = TRUE))
                   }, error = function(e) NULL)
@@ -44,15 +45,16 @@ run_regression_for_periodic_function <- function(j, coe) {
 
 # cal coe in regression function
 run_regression_for_quadratic_function <- function(i, coe) {
+    MAX_SEARCH_RANGE <- 1
     tmp_coe <- unlist(coe)
     x <- seq(1, length(tmp_coe))
     a_data <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric())
     if (all(sapply(coe[[i]], function(x) x == 0)) == TRUE) {
         a_data <- data.frame(mse = 0, a = 0, b = 0, c = 0)
     } else {
-        for (sub_a in seq(0, 1, by = 0.5)) {
-            for (sub_b in seq(0, 1, by = 0.5)) {
-                for (sub_c in seq(0, 1, by = 0.5)) {
+        for (sub_a in seq(0, MAX_SEARCH_RANGE, by = 0.5)) {
+            for (sub_b in seq(0, MAX_SEARCH_RANGE, by = 0.5)) {
+                for (sub_c in seq(0, MAX_SEARCH_RANGE, by = 0.5)) {
                   fit <- nls(tmp_coe ~ quadratic_function(x, a, b, c), start = list(a = sub_a, b = sub_b, c = sub_c), control = nls.control(warnOnly = TRUE))
                   params <- coef(fit)
                   pre <- quadratic_function(x, params[1], params[2], params[3])

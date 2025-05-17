@@ -201,7 +201,6 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution, na
     cl <- makeCluster(num_cores)
     registerDoParallel(cl)
 
-    # 並列処理でARIMA回帰分析を実行
     if (regression_model == "arima") {
         prediction_result <- foreach(j = seq(1, resolution + 1), .packages = c("forecast")) %dopar% {
             training_data <- unlist(trading_coefficients[[j]])
@@ -228,25 +227,25 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution, na
 
     CreateGraphForWaveleDecomposePrediction(prediction_result, all_coefficients_data, length(data), prediction_term, name, resolution)
 
-    predinction_wavelet <- list()
-    predinction_scaling <- list()
+    prediction_wavelet <- list()
+    prediction_scaling <- list()
 
     for (i in seq(1, resolution + 1)) {
         if (i == 1) {
-            predinction_wavelet[[i]] <- as.numeric(prediction_result[[i]]$mean)
+            prediction_wavelet[[i]] <- as.numeric(prediction_result[[i]]$mean)
         } else {
-            predinction_scaling[[i]] <- as.numeric(prediction_result[[i]]$mean)
+            prediction_scaling[[i]] <- as.numeric(prediction_result[[i]]$mean)
         }
     }
 
-    inverse_data <- unlist(predinction_wavelet)
+    inverse_data <- unlist(prediction_wavelet)
     for (i in seq(resolution + 1, 2, by = -1)) {
         a <- list()
-        for (j in seq(1, length(predinction_scaling[[i]]), by = 1)) {
+        for (j in seq(1, length(prediction_scaling[[i]]), by = 1)) {
             if (j == 1) {
-                a <- inverse_data[ceiling(j/2)] + predinction_scaling[[i]][j]
+                a <- inverse_data[ceiling(j/2)] + prediction_scaling[[i]][j]
             } else {
-                a <- append(a, inverse_data[ceiling(j/2)] + predinction_scaling[[i]][j])
+                a <- append(a, inverse_data[ceiling(j/2)] + prediction_scaling[[i]][j])
             }
         }
         inverse_data <- a
