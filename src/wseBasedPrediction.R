@@ -157,7 +157,7 @@ QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, ind
   return(predictionData)
 }
 
-WaveleDecomposePrediction <- function(data, training_percentage, resolution, name){
+WaveleDecomposePrediction <- function(data, training_percentage, resolution, name, regression_model){
   training_data <- data[1:ceiling(length(data) * training_percentage)]
   prediction_term <- floor((1 - training_percentage) * length(data))
 
@@ -202,21 +202,34 @@ WaveleDecomposePrediction <- function(data, training_percentage, resolution, nam
   registerDoParallel(cl)
 
   # 並列処理でARIMA回帰分析を実行
-  prediction_result <- foreach(j = seq(1, resolution+1), .packages = c("forecast")) %dopar% {
-      training_data <- unlist(trading_coefficients[[j]])
+  if(regression_model == "arima") {
+        prediction_result <- foreach(j = seq(1, resolution+1), .packages = c("forecast")) %dopar% {
+            training_data <- unlist(trading_coefficients[[j]])
 
-      # ARIMAモデルの適用
-      fit <- auto.arima(
-          training_data,
-          stepwise = FALSE,
-          approximation = FALSE,
-          seasonal = FALSE,
-          trace = TRUE)
+            # ARIMAモデルの適用
+            fit <- auto.arima(
+                training_data,
+                stepwise = FALSE,
+                approximation = FALSE,
+                seasonal = FALSE,
+                trace = TRUE)
 
-      # 予測
-      forecasted <- forecast(fit, h = coefficients_prediction_term_list[[j]])  # 予測
-      return(forecasted)
-  }
+            # 予測
+            forecasted <- forecast(fit, h = coefficients_prediction_term_list[[j]])  # 予測
+            return(forecasted)
+        }
+    } else if(regression_model == "periodic") {
+        sorted_best_coe_list <- foreach(j = seq(1, resolution+1), .packages = c("stats"), .export = c("run_regression_for_periodic_function", "periodic_function")) %dopar% {
+            run_regression_for_periodic_function(j, trading_coefficients)
+        }
+        prediction_result <- list()
+        for (j in seq(1, resolution + 1)) {
+            y <- c(1:coefficients_prediction_term_list[[j]])
+            prediction_result[[j]] <- data.frame(
+                mean = periodic_function(y, sorted_best_coe_list[[j]]$a[[1]], sorted_best_coe_list[[j]]$b[[1]], sorted_best_coe_list[[j]]$c[[1]], sorted_best_coe_list[[j]]$d[[1]])
+            )
+        }
+    }
 
   stopCluster(cl)
 

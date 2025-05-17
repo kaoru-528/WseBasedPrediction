@@ -9,10 +9,10 @@ quadratic_function <- function(x, a, b, c) {
 }
 
 # 回帰実行関数
-run_regression_for_periodic_function <- function(j, coe, coe_length, prediction_term) {
-    x <- seq(1, (coe_length - prediction_term))
-    model_coe_list <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
+run_regression_for_periodic_function <- function(j, coe) {
     tmp_coe <- unlist(coe[[j]])
+    x <- seq(1, length(tmp_coe))
+    model_coe_list <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
 
     for (sub_a in seq(0.5, 1, by = 0.5)) {
         for (sub_b in seq(0.5, 1, by = 0.5)) {
@@ -36,13 +36,16 @@ run_regression_for_periodic_function <- function(j, coe, coe_length, prediction_
 
     row.names(model_coe_list) <- NULL
     model_coe_list <- model_coe_list[order(model_coe_list$mse, decreasing = FALSE), ]
+    if (nrow(model_coe_list) == 0) {
+        model_coe_list <- data.frame(mse = 0, a = 0, b = 0, c = 0, d = 0)
+    }
     return(model_coe_list)
 }
 
 # cal coe in regression function
-run_regression_for_quadratic_function <- function(i, coe, coe_length, prediction_term) {
-    x <- seq(1, (coe_length - prediction_term))
+run_regression_for_quadratic_function <- function(i, coe) {
     tmp_coe <- unlist(coe[[i]])
+    x <- seq(1, length(tmp_coe))
     a_data <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric())
     if (all(sapply(coe[[i]], function(x) x == 0)) == TRUE) {
         a_data <- data.frame(mse = 0, a = 0, b = 0, c = 0)
@@ -74,11 +77,11 @@ run_parallel_regression <- function(coe, coe_length, prediction_term, regression
     # 並列処理で回帰分析を実行
     if( regression_function == "periodic") {
         sorted_best_coe <- foreach(j = seq(1, 8), .packages = c("stats"), .export = c("run_regression_for_periodic_function", "periodic_function")) %dopar% {
-            run_regression_for_periodic_function(j, coe, coe_length, prediction_term)
+            run_regression_for_periodic_function(j, coe)
         }
     } else if (regression_function == "quadratic") {
         sorted_best_coe <- foreach(i = seq(1, 8), .packages = c("stats"), .export = c("run_regression_for_quadratic_function", "quadratic_function")) %dopar% {
-            run_regression_for_quadratic_function(i, coe, coe_length, prediction_term)
+            run_regression_for_quadratic_function(i, coe)
         }
     }
 
