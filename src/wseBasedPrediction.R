@@ -157,7 +157,7 @@ QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, ind
     return(predictionData)
 }
 
-WaveleDecomposePrediction <- function(data, training_percentage, resolution, name, regression_model) {
+WaveletDecomposePrediction <- function(data, training_percentage, resolution, name, regression_model) {
     training_data <- data[1:ceiling(length(data) * training_percentage)]
     prediction_term <- floor((1 - training_percentage) * length(data))
 
