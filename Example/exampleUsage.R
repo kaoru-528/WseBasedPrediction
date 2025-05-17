@@ -11,20 +11,20 @@ library(tictoc)
 library(forecast)
 
 rm(list = ls())
-periodicBasedPrediction_Path = paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/wseBasedPrediction.R")
+periodicBasedPrediction_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/wseBasedPrediction.R")
 source(periodicBasedPrediction_Path)
 
 # Load data
-data = loadData(dataPath = "/example/exampleDS.txt")
-dt = "none"
-thresholdName = "ldt"
-thresholdMode = "h"
-index = 3
-initThresholdvalue = 1
-predictionPercentage = 0.5
+data <- loadData(dataPath = "/example/exampleDS.txt")
+dt <- "none"
+thresholdName <- "ldt"
+thresholdMode <- "h"
+index <- 3
+initThresholdvalue <- 1
+predictionPercentage <- 0.5
 
-PeriodicResult = PeriodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage)
+PeriodicResult <- PeriodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage)
 
-QuatraticResult = QuatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage)
+QuatraticResult <- QuatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage)
 
-ArimaResult = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage)
+ArimaResult <- ArimaBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, predictionPercentage)
