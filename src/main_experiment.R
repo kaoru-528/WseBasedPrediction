@@ -1,8 +1,4 @@
-# # when you run this program for the first time, you have to install thire packages
-# install.packages("tictoc")
-# install.packages("doParallel")
-# install.packages("foreach")
-# Load necessary libraries
+# # when you run this program for the first time, you have to install thire packages install.packages('tictoc') install.packages('doParallel') install.packages('foreach') Load necessary libraries
 library(doParallel)
 library(foreach)
 library(tictoc)
@@ -37,119 +33,12 @@ prediction_percentage <- list(0.3, 0.5, 0.7)
 
 for (p in seq(1, 1, by = 1)) {
     for (o in seq(3, 3, by = 1)) {
-        # if(p == 1){
-        #     term = 100
-        #     name = paste0("DS5_2^3_A1_ut_hard_", prediction_percentage[o])
-        #     load(dataPath5)
-        #     data = hard
-        # }
-        # else if(p == 2){
-        #     name = paste0("DS5_2^3_A1_ut_soft_", prediction_percentage[o])
-        #     data = soft
-        # }
-        # else if (p == 3){
-        #     term = 59
-        #     name = paste0("DS6_2^3_A1_ut_hard_", prediction_percentage[o])
-        #     load(dataPath6)
-        #     data = hard
-        # }
-        # else if(p == 4){
-        #     name = paste0("DS6_2^3_A1_ut_soft_", prediction_percentage[o])
-        #     data = soft
-        # }
-        # else if (p == 5){
-        #     term = 73
-        #     name = paste0("DS3_2^3_A1_ut_hard_", prediction_percentage[o])
-        #     load(dataPath3)
-        #     data = hard
-        # }
-        # else if(p == 6){
-        #     name = paste0("DS3_2^3_A1_ut_soft_", prediction_percentage[o])
-        #     data = soft
-        # }
-        # else if (p == 7){
-        #     term = 81
-        #     name = paste0("DS4_2^3_A1_ut_hard_", prediction_percentage[o])
-        #     load(dataPath4)
-        #     data = hard
-        # }
-        # else if(p == 8){
-        #     name = paste0("DS4_2^3_A1_ut_soft_", prediction_percentage[o])
-        #     data = soft
-        # }
-        # if (p == 1) {
-        #     term <- 62
-        #     name <- paste0("DS1_2^3_None_ldt_hard_", prediction_percentage[o])
-        #     load(dataPath1)
-        #     data <- soft
-        # } else if (p == 2) {
-        #     name <- paste0("DS1_2^3_None_ldt_soft_", prediction_percentage[o])
-        #     data <- hard
-        # } else if (p == 3) {
-        #     term <- 41
-        #     name <- paste0("DS2_2^3_None_ldt_hard_", prediction_percentage[o])
-        #     load(dataPath2)
-        #     data <- soft
-        # } else if (p == 4) {
-        #     name <- paste0("DS2_2^3_None_ldt_soft_", prediction_percentage[o])
-        #     data <- hard
-        # } else if (p == 5) {
-        #     term <- 73
-        #     name <- paste0("DS3_2^3_None_ldt_hard_", prediction_percentage[o])
-        #     load(dataPath3)
-        #     data <- soft
-        # } else if (p == 6) {
-        #     name <- paste0("DS3_2^3_None_ldt_soft_", prediction_percentage[o])
-        #     data <- hard
-        # } else if (p == 7) {
-        #     term <- 81
-        #     name <- paste0("DS4_2^3_None_ldt_hard_", prediction_percentage[o])
-        #     load(dataPath4)
-        #     data <- soft
-        # } else if (p == 8) {
-        #     name <- paste0("DS4_2^3_None_ldt_soft_", prediction_percentage[o])
-        #     data <- hard
-        # } else if (p == 9) {
-        #     term <- 100
-        #     name <- paste0("DS5_2^3_None_ldt_soft_", prediction_percentage[o])
-        #     load(dataPath11)
-        #     data <- soft
-        # } else if (p == 10) {
-        #     name <- paste0("DS5_2^3_None_ldt_hard_", prediction_percentage[o])
-        #     data <- hard
-        # } else if (p == 11) {
-        #     term <- 59
-        #     name <- paste0("DS6_2^3_None_ldt_soft_", prediction_percentage[o])
-        #     load(dataPath12)
-        #     data <- soft
-        # } else if (p == 12) {
-        #     name <- paste0("DS6_2^3_None_ldt_hard_", prediction_percentage[o])
-        #     data <- hard
-        # }
-        # else if (p == 13){
-        #     term = 73
-        #     name = paste0("DS3_2^3_None_ldt_soft_", prediction_percentage[o])
-        #     load(dataPath7)
-        #     data = soft
-        # }
-        # else if (p == 14){
-        #     term = 73
-        #     name = paste0("DS3_2^3_None_ldt_hard_", prediction_percentage[o])
-        #     load(dataPath7)
-        #     data = hard
-        # }
-        # else if (p == 15){
-        #     term = 81
-        #     name = paste0("DS4_2^3_None_ldt_soft_", prediction_percentage[o])
-        #     load(dataPath8)
-        #     data = soft
-        # }
-        # else if (p == 16){
-        #     term = 81
-        #     name = paste0("DS4_2^3_None_ldt_hard_", prediction_percentage[o])
-        #     load(dataPath8)
-        #     data = hard
-        # }
+        # if(p == 1){ term = 100 name = paste0('DS5_2^3_A1_ut_hard_', prediction_percentage[o]) load(dataPath5) data = hard } else if(p == 2){ name = paste0('DS5_2^3_A1_ut_soft_', prediction_percentage[o]) data = soft } else if (p == 3){ term = 59 name = paste0('DS6_2^3_A1_ut_hard_', prediction_percentage[o]) load(dataPath6) data = hard } else if(p == 4){ name = paste0('DS6_2^3_A1_ut_soft_', prediction_percentage[o]) data = soft } else if (p == 5){ term = 73 name = paste0('DS3_2^3_A1_ut_hard_',
+        # prediction_percentage[o]) load(dataPath3) data = hard } else if(p == 6){ name = paste0('DS3_2^3_A1_ut_soft_', prediction_percentage[o]) data = soft } else if (p == 7){ term = 81 name = paste0('DS4_2^3_A1_ut_hard_', prediction_percentage[o]) load(dataPath4) data = hard } else if(p == 8){ name = paste0('DS4_2^3_A1_ut_soft_', prediction_percentage[o]) data = soft } if (p == 1) { term <- 62 name <- paste0('DS1_2^3_None_ldt_hard_', prediction_percentage[o]) load(dataPath1) data <- soft }
+        # else if (p == 2) { name <- paste0('DS1_2^3_None_ldt_soft_', prediction_percentage[o]) data <- hard } else if (p == 3) { term <- 41 name <- paste0('DS2_2^3_None_ldt_hard_', prediction_percentage[o]) load(dataPath2) data <- soft } else if (p == 4) { name <- paste0('DS2_2^3_None_ldt_soft_', prediction_percentage[o]) data <- hard } else if (p == 5) { term <- 73 name <- paste0('DS3_2^3_None_ldt_hard_', prediction_percentage[o]) load(dataPath3) data <- soft } else if (p == 6) { name <-
+        # paste0('DS3_2^3_None_ldt_soft_', prediction_percentage[o]) data <- hard } else if (p == 7) { term <- 81 name <- paste0('DS4_2^3_None_ldt_hard_', prediction_percentage[o]) load(dataPath4) data <- soft } else if (p == 8) { name <- paste0('DS4_2^3_None_ldt_soft_', prediction_percentage[o]) data <- hard } else if (p == 9) { term <- 100 name <- paste0('DS5_2^3_None_ldt_soft_', prediction_percentage[o]) load(dataPath11) data <- soft } else if (p == 10) { name <-
+        # paste0('DS5_2^3_None_ldt_hard_', prediction_percentage[o]) data <- hard } else if (p == 11) { term <- 59 name <- paste0('DS6_2^3_None_ldt_soft_', prediction_percentage[o]) load(dataPath12) data <- soft } else if (p == 12) { name <- paste0('DS6_2^3_None_ldt_hard_', prediction_percentage[o]) data <- hard } else if (p == 13){ term = 73 name = paste0('DS3_2^3_None_ldt_soft_', prediction_percentage[o]) load(dataPath7) data = soft } else if (p == 14){ term = 73 name =
+        # paste0('DS3_2^3_None_ldt_hard_', prediction_percentage[o]) load(dataPath7) data = hard } else if (p == 15){ term = 81 name = paste0('DS4_2^3_None_ldt_soft_', prediction_percentage[o]) load(dataPath8) data = soft } else if (p == 16){ term = 81 name = paste0('DS4_2^3_None_ldt_hard_', prediction_percentage[o]) load(dataPath8) data = hard }
 
         term <- 62
         name <- paste0("DS1_2^3_None_ldt_hard_", prediction_percentage[o])
@@ -245,51 +134,36 @@ for (p in seq(1, 1, by = 1)) {
             Ds[[k]][[3]][2] <- D_2_2[[k]]
             Ds[[k]][[4]][1] <- D_3_1[[k]]
         }
-        # if(p == 1 || p == 3){
-        #     # print(p)
-        #     # print("ut_soft")
-        #     Denoise_Ds = ThresholdForGroups(Ds,"h","ut",)
+        # if(p == 1 || p == 3){ # print(p) # print('ut_soft') Denoise_Ds = ThresholdForGroups(Ds,'h','ut',)
 
-        #     i_groups = inverseHaarWaveletTransformForGroups(Cs,Denoise_Ds)
-        #     i_groups = lapply(i_groups, function(x) x*8**0.5)
+        # i_groups = inverseHaarWaveletTransformForGroups(Cs,Denoise_Ds) i_groups = lapply(i_groups, function(x) x*8**0.5)
 
-        #     a_idata = movingAverage(i_groups,term)
+        # a_idata = movingAverage(i_groups,term)
 
-        #     # Perform inverse Anscombe data conversion
-        #     idata = inverseAnscombeTransformFromGroup(a_idata,1)
-        # }
-        # else if(p == 2 || p == 4){
-        #     # print(p)
-        #     # print("ut_soft")
-        #     Denoise_Ds = ThresholdForGroups(Ds,"s","ut")
+        # # Perform inverse Anscombe data conversion idata = inverseAnscombeTransformFromGroup(a_idata,1) } else if(p == 2 || p == 4){ # print(p) # print('ut_soft') Denoise_Ds = ThresholdForGroups(Ds,'s','ut')
 
-        #     i_groups = inverseHaarWaveletTransformForGroups(Cs,Denoise_Ds)
-        #     i_groups = lapply(i_groups, function(x) x*8**0.5)
+        # i_groups = inverseHaarWaveletTransformForGroups(Cs,Denoise_Ds) i_groups = lapply(i_groups, function(x) x*8**0.5)
 
-        #     a_idata = movingAverage(i_groups,term)
+        # a_idata = movingAverage(i_groups,term)
 
-        #     # Perform inverse Anscombe data conversion
-        #     idata = inverseAnscombeTransformFromGroup(a_idata,1)
-        # }
+        # # Perform inverse Anscombe data conversion idata = inverseAnscombeTransformFromGroup(a_idata,1) }
         if (p == 1 || p == 3 || p == 5 || p == 7 || p == 9 || p == 11) {
-            # print(p)
-            # print("ldt_soft")
+            # print(p) print('ldt_soft')
             Denoise_Ds <- ThresholdForGroups(Ds, "s", "ldt")
 
             i_groups <- inverseHaarWaveletTransformForGroups(Cs, Denoise_Ds)
-            i_groups <- lapply(i_groups, function(x) x * 8**0.5)
+            i_groups <- lapply(i_groups, function(x) x * 8^0.5)
 
             a_idata <- movingAverage(i_groups, term)
 
             # Perform inverse Anscombe data conversion
             idata <- inverseAnscombeTransformFromGroup(a_idata, 1)
         } else if (p == 2 || p == 4 || p == 6 || p == 8 || p == 10 || p == 12) {
-            # print(p)
-            # print("ldt_hard")
+            # print(p) print('ldt_hard')
             Denoise_Ds <- ThresholdForGroups(Ds, "h", "ldt")
 
             i_groups <- inverseHaarWaveletTransformForGroups(Cs, Denoise_Ds)
-            i_groups <- lapply(i_groups, function(x) x * 8**0.5)
+            i_groups <- lapply(i_groups, function(x) x * 8^0.5)
 
             a_idata <- movingAverage(i_groups, term)
 
@@ -304,15 +178,8 @@ for (p in seq(1, 1, by = 1)) {
             prediction <- rbind(prediction, add_data)
         }
         best_coe <- data.frame(a = numeric(), b = numeric(), c = numeric(), d = numeric())
-        # for (m in seq(1, 8, by = 1)) {
-        #     tmp_best_coe <- data.frame(a = sorted_best_coe[[m]]$a[[1]], b = sorted_best_coe[[m]]$b[[1]], c = sorted_best_coe[[m]]$c[[1]], d = sorted_best_coe[[m]]$d[[1]])
-        #     best_coe <- rbind(best_coe, tmp_best_coe)
-        # }
-        # best_coe_filename <- paste0("./OUTPUT/", name, "_best_coe.xlsx")
-        # write.xlsx(best_coe, best_coe_filename)
-        # prediction_filename <- paste0("./OUTPUT/", name, ".xlsx")
-        # write.xlsx(prediction, prediction_filename)
-        # variable_path <- paste0("./OUTPUT/", name, "_best_coe.RData")
-        # save(sorted_best_coe, file = variable_path)
+        # for (m in seq(1, 8, by = 1)) { tmp_best_coe <- data.frame(a = sorted_best_coe[[m]]$a[[1]], b = sorted_best_coe[[m]]$b[[1]], c = sorted_best_coe[[m]]$c[[1]], d = sorted_best_coe[[m]]$d[[1]]) best_coe <- rbind(best_coe, tmp_best_coe) } best_coe_filename <- paste0('./OUTPUT/', name, '_best_coe.xlsx') write.xlsx(best_coe, best_coe_filename) prediction_filename <- paste0('./OUTPUT/', name, '.xlsx') write.xlsx(prediction, prediction_filename) variable_path <- paste0('./OUTPUT/', name,
+        # '_best_coe.RData') save(sorted_best_coe, file = variable_path)
     }
 }
+FALSE
