@@ -10,7 +10,7 @@ quadratic_function <- function(x, a, b, c) {
 
 # 回帰実行関数
 run_regression_for_periodic_function <- function(j, coe) {
-    tmp_coe <- unlist(coe[[j]])
+    tmp_coe <- unlist(coe)
     x <- seq(1, length(tmp_coe))
     model_coe_list <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
 
@@ -44,7 +44,7 @@ run_regression_for_periodic_function <- function(j, coe) {
 
 # cal coe in regression function
 run_regression_for_quadratic_function <- function(i, coe) {
-    tmp_coe <- unlist(coe[[i]])
+    tmp_coe <- unlist(coe)
     x <- seq(1, length(tmp_coe))
     a_data <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric())
     if (all(sapply(coe[[i]], function(x) x == 0)) == TRUE) {
@@ -77,11 +77,11 @@ run_parallel_regression <- function(coe, coe_length, prediction_term, regression
     # 並列処理で回帰分析を実行
     if (regression_function == "periodic") {
         sorted_best_coe <- foreach(j = seq(1, 8), .packages = c("stats"), .export = c("run_regression_for_periodic_function", "periodic_function")) %dopar% {
-            run_regression_for_periodic_function(j, coe)
+            run_regression_for_periodic_function(j, coe[[j]])
         }
     } else if (regression_function == "quadratic") {
         sorted_best_coe <- foreach(i = seq(1, 8), .packages = c("stats"), .export = c("run_regression_for_quadratic_function", "quadratic_function")) %dopar% {
-            run_regression_for_quadratic_function(i, coe)
+            run_regression_for_quadratic_function(i, coe[[i]])
         }
     }
 
@@ -91,7 +91,7 @@ run_parallel_regression <- function(coe, coe_length, prediction_term, regression
     return(sorted_best_coe)
 }
 
-run_arima_regression <- function(j, coe, coe_length, prediction_term) {
+run_arima_regression <- function(j, coe, prediction_term) {
     # 対象データの取得
     train_data <- unlist(coe[[j]])
 
@@ -102,7 +102,7 @@ run_arima_regression <- function(j, coe, coe_length, prediction_term) {
     return(forecasted)
 }
 
-run_parallel_arima_regression <- function(coe, coe_length, prediction_term) {
+run_parallel_arima_regression <- function(coe, prediction_term) {
     # 並列処理のセットアップ
     num_cores <- detectCores()
     cl <- makeCluster(num_cores)
@@ -110,7 +110,7 @@ run_parallel_arima_regression <- function(coe, coe_length, prediction_term) {
 
     # 並列処理でARIMA回帰分析を実行
     prediction_result <- foreach(j = seq(1, 8), .packages = c("forecast"), .export = c("run_arima_regression")) %dopar% {
-        run_arima_regression(j, coe, coe_length, prediction_term)
+        run_arima_regression(j, coe, prediction_term)
     }
 
     # 並列処理の停止

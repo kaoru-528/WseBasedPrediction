@@ -69,7 +69,7 @@ ArimaBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, 
     coefficients_data_for_training <- prepare_data(cs, ds, predictionTerm)
 
     tic()
-    prediction_result <- run_parallel_arima_regression(coefficients_data_for_training, coeLength, predictionTerm)
+    prediction_result <- run_parallel_arima_regression(coefficients_data_for_training, predictionTerm)
     time <- toc()
     CreateGraphForArimaBasedPrediction(prediction_result, all_coefficients_data, coeLength, predictionTerm, name)
 
@@ -215,7 +215,7 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution, na
         }
     } else if (regression_model == "periodic") {
         sorted_best_coe_list <- foreach(j = seq(1, resolution + 1), .packages = c("stats"), .export = c("run_regression_for_periodic_function", "periodic_function")) %dopar% {
-            run_regression_for_periodic_function(j, trading_coefficients)
+            run_regression_for_periodic_function(j, trading_coefficients[[j]])
         }
         prediction_result <- list()
         for (j in seq(1, resolution + 1)) {
