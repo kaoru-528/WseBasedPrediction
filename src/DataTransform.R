@@ -1,6 +1,4 @@
-# -----------------------------------------------
-# Anscombe transformation
-# -----------------------------------------------
+# ----------------------------------------------- Anscombe transformation -----------------------------------------------
 AnscombeTransformFromGroups <- function(groups, var) {
     groupsLength <- length(groups)
     lists <- list()
@@ -19,9 +17,9 @@ AnscombeTransformFromGroup <- function(group, var) {
     groupLength <- length(group)
     i <- 1
     while (i <= groupLength) {
-        a <- group[[i]] + 3 / 8
-        b <- a**0.5
-        c <- b * 2 * (var**0.5)
+        a <- group[[i]] + 3/8
+        b <- a^0.5
+        c <- b * 2 * (var^0.5)
         Anscombelist <- append(Anscombelist, c)
         i <- i + 1
     }
@@ -49,8 +47,8 @@ inverseAnscombeTransformFromGroup <- function(AT_data, var) {
     while (i <= groupsLength) {
         a <- AT_data[[i]]
         b <- a * a
-        d <- (2 * (var**0.5))**-2
-        c <- d * b - 3 / 8
+        d <- (2 * (var^0.5))^-2
+        c <- d * b - 3/8
         c <- round(c, 11)
         lists <- append(lists, c)
         i <- i + 1
@@ -58,10 +56,7 @@ inverseAnscombeTransformFromGroup <- function(AT_data, var) {
     return(lists)
 }
 
-# -----------------------------------------
-# The inverse Anscombe transformation 2
-# ((si/2)^2)-1/8
-# -----------------------------------------
+# ----------------------------------------- The inverse Anscombe transformation 2 ((si/2)^2)-1/8 -----------------------------------------
 inverseAnscombeTransform2FromGroups <- function(AT_datas, var) {
     AT_datas <- copy.deepcopy(AT_datas)
     groupsLength <- length(AT_datas)
@@ -82,8 +77,8 @@ inverseAnscombeTransform2FromGroup <- function(AT_data, var) {
     while (i <= groupsLength) {
         a <- AT_data[[i]]
         b <- a * a
-        d <- (2 * (var**0.5))**-2
-        c <- d * b - 1 / 8
+        d <- (2 * (var^0.5))^-2
+        c <- d * b - 1/8
         c <- round(c, 11)
         lists <- append(lists, c)
         i <- i + 1
@@ -92,10 +87,7 @@ inverseAnscombeTransform2FromGroup <- function(AT_data, var) {
 }
 
 
-# -----------------------------------------
-# The inverse Anscombe transformation 3
-# (si^2)/4+sqrt(3/2)/(4*si)-11/(8*(si^2))+5*sqrt(3/2)/(8*(si^3))-1/8
-# -----------------------------------------
+# ----------------------------------------- The inverse Anscombe transformation 3 (si^2)/4+sqrt(3/2)/(4*si)-11/(8*(si^2))+5*sqrt(3/2)/(8*(si^3))-1/8 -----------------------------------------
 inverseAnscombeTransform3FromGroups <- function(AT_datas, var) {
     AT_datas <- copy.deepcopy(AT_datas)
     groupsLength <- length(AT_datas)
@@ -117,12 +109,12 @@ inverseAnscombeTransform3FromGroup <- function(AT_data, var) {
     while (i <= groupsLength) {
         a <- AT_data[[i]]
         b <- a * a
-        d <- (2 * (var**0.5))**-2
-        e <- a**(-1)
-        f <- a**(-2)
-        g <- a**(-3)
-        c <- d * b + (d**-0.5) * ((3 / 2)**(0.5)) * e - (d**-1) * 11 * f / 2 + (d**-1.5) * 5 * ((3 / 2)**(0.5)) * g / 4 - 1 / 8
-        if (a < 2 * ((3 / 8)**(0.5))) {
+        d <- (2 * (var^0.5))^-2
+        e <- a^(-1)
+        f <- a^(-2)
+        g <- a^(-3)
+        c <- d * b + (d^-0.5) * ((3/2)^(0.5)) * e - (d^-1) * 11 * f/2 + (d^-1.5) * 5 * ((3/2)^(0.5)) * g/4 - 1/8
+        if (a < 2 * ((3/8)^(0.5))) {
             c <- 0
         }
         c <- round(c, 11)
@@ -132,9 +124,7 @@ inverseAnscombeTransform3FromGroup <- function(AT_data, var) {
     return(lists)
 }
 
-# -----------------------------------------------
-# Bartlet
-# -----------------------------------------------
+# ----------------------------------------------- Bartlet -----------------------------------------------
 BartlettTransformFromGroups <- function(groups, var) {
     groupsLength <- length(groups)
     lists <- list()
@@ -153,8 +143,8 @@ BartlettTransformFromGroup <- function(group, var) {
     i <- 1
     while (i <= groupLength) {
         a <- group[[i]] + 0.5
-        b <- a**0.5
-        c <- b * 2 * (var**0.5)
+        b <- a^0.5
+        c <- b * 2 * (var^0.5)
         lists <- append(lists, c)
         i <- i + 1
     }
@@ -180,7 +170,7 @@ inverseBartlettTransformFromGroup <- function(BT_data, var) {
     lists <- c()
     while (i <= groupsLength) {
         a <- BT_data[[i]] * BT_data[[i]]
-        b <- (2 * (var**0.5))**-2
+        b <- (2 * (var^0.5))^-2
         c <- b * a - 0.5
         c <- round(c, 11)
         lists <- append(lists, c)
@@ -189,10 +179,7 @@ inverseBartlettTransformFromGroup <- function(BT_data, var) {
     return(lists)
 }
 
-# -----------------------------------------------
-# Applying Bartlett transformation 2
-# bi=2*sqrt(yi)
-# -----------------------------------------------
+# ----------------------------------------------- Applying Bartlett transformation 2 bi=2*sqrt(yi) -----------------------------------------------
 BartlettTransform2FromGroups <- function(groups, var) {
     groupsLength <- length(groups)
     lists <- list()
@@ -212,8 +199,8 @@ BartlettTransform2FromGroup <- function(group, var) {
     i <- 1
     while (i <= groupLength) {
         a <- group[[i]]
-        b <- a**0.5
-        c <- b * 2 * (var**0.5)
+        b <- a^0.5
+        c <- b * 2 * (var^0.5)
         lists <- append(lists, c)
         i <- i + 1
     }
@@ -221,10 +208,7 @@ BartlettTransform2FromGroup <- function(group, var) {
 }
 
 
-# -----------------------------------------------
-# The inverse Bartlett transformation 2
-# (bi^2)/4
-# -----------------------------------------------
+# ----------------------------------------------- The inverse Bartlett transformation 2 (bi^2)/4 -----------------------------------------------
 inverseBartlettTransform2FromGroups <- function(groups, var) {
     groupsLength <- length(groups)
     lists <- list()
@@ -244,7 +228,7 @@ inverseBartlettTransform2FromGroup <- function(BT_data, var) {
     lists <- c()
     while (i <= groupsLength) {
         a <- BT_data[[i]] * BT_data[[i]]
-        b <- (2 * (var**0.5))**-2
+        b <- (2 * (var^0.5))^-2
         c <- b * a
         c <- round(c, 11)
         lists <- append(lists, c)
@@ -254,9 +238,7 @@ inverseBartlettTransform2FromGroup <- function(BT_data, var) {
 }
 
 
-# -----------------------------------------------
-# Fisz
-# -----------------------------------------------
+# ----------------------------------------------- Fisz -----------------------------------------------
 FiszTransformFromGroups <- function(scalingCoes, waveletCoes, var) {
     groupsLength <- length(scalingCoes)
     lists <- list()
@@ -279,12 +261,12 @@ FiszTransformFromGroup <- function(scalingCoe, waveletCoe, var) {
         coeList <- c()
         while (i <= levelLength) {
             if (scalingCoe[[j]][i] == 0) {
-                coeList <- append(coeList, 0.0)
+                coeList <- append(coeList, 0)
             } else {
                 if (scalingCoe[[j]][i] < 0) {
-                    print("FiszTransformFromGroup")
+                  print("FiszTransformFromGroup")
                 }
-                coeList <- append(coeList, (var**0.5) * waveletCoe[[j]][[i]] / (scalingCoe[[j]][i]**0.5))
+                coeList <- append(coeList, (var^0.5) * waveletCoe[[j]][[i]]/(scalingCoe[[j]][i]^0.5))
             }
             i <- i + 1
         }
@@ -355,15 +337,13 @@ inverseFiszTransformFromGroup <- function(scalingCoe, FiszCoe, var) {
 }
 # Wavelet coefficients in Poisson space are calculated from scale coefficients and wavelet coefficients in Gaussian space
 Fisz_getD <- function(c, f, var) {
-    f <- f / (var**0.5)
-    res <- f * (c**0.5)
+    f <- f/(var^0.5)
+    res <- f * (c^0.5)
     res <- round(res, 11)
     return(res)
 }
 
-# -----------------------------------------------
-# Freeman
-# -----------------------------------------------
+# ----------------------------------------------- Freeman -----------------------------------------------
 FreemanTransformFromGroups <- function(groups, var) {
     groupsLength <- length(groups)
     lists <- list()
@@ -382,10 +362,10 @@ FreemanTransformFromGroup <- function(group, var) {
     i <- 1
     while (i <= groupLength) {
         a <- group[[i]] + 1
-        b <- a**0.5
+        b <- a^0.5
         d <- group[[i]]
-        e <- d**0.5
-        c <- b * (var**0.5) + e * (var**0.5)
+        e <- d^0.5
+        c <- b * (var^0.5) + e * (var^0.5)
         lists <- append(lists, c)
         i <- i + 1
     }
@@ -411,9 +391,9 @@ inverseFreemanTransformFromGroup <- function(FT_data, var) {
     lists <- c()
     while (i <= groupsLength) {
         a <- FT_data[[i]] * FT_data[[i]]
-        b <- (2 * (var**0.5))**-2
-        d <- a**(-1)
-        e <- b**(-1)
+        b <- (2 * (var^0.5))^-2
+        d <- a^(-1)
+        e <- b^(-1)
         c <- b * a + e * d - 0.5
         c <- round(c, 11)
         lists <- append(lists, c)
@@ -421,3 +401,4 @@ inverseFreemanTransformFromGroup <- function(FT_data, var) {
     }
     return(lists)
 }
+FALSE
