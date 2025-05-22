@@ -41,20 +41,19 @@ PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, inde
         Ds[[k]][[4]][1] <- D_3_1[[k]]
     }
 
-
-    denoiseDs <- ThresholdForGroups(Ds = Ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
-    i_groups <- inverseHaarWaveletTransformForGroups(Cs, denoiseDs)
+    denoised_ds <- ThresholdForGroups(Ds = Ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
+    i_groups <- inverseHaarWaveletTransformForGroups(Cs, denoised_ds)
     i_groups <- lapply(i_groups, function(x) x * 8^0.5)
-    allData <- movingAverage(i_groups, term)
-    allData <- apply_inverse_transform(allData, dt, var)
-    allData <- pmax(allData, 0)
+    all_data <- movingAverage(i_groups, term)
+    all_data <- apply_inverse_transform(all_data, dt, var)
+    all_data <- pmax(all_data, 0)
 
     best_coe <- data.frame(a = numeric(), b = numeric(), c = numeric(), d = numeric())
     for (m in seq(1, 8, by = 1)) {
         tmp_best_coe <- data.frame(a = sorted_best_coe[[m]]$a[[1]], b = sorted_best_coe[[m]]$b[[1]], c = sorted_best_coe[[m]]$c[[1]], d = sorted_best_coe[[m]]$d[[1]])
         best_coe <- rbind(best_coe, tmp_best_coe)
     }
-    predictionData <- list(predictionData = tail(allData, predictionTerm), regressionCoefficient = best_coe)
+    predictionData <- list(predictionData = tail(all_data, predictionTerm), regressionCoefficient = best_coe)
     return(predictionData)
 }
 
@@ -96,14 +95,14 @@ ArimaBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, 
     }
 
 
-    denoiseDs <- ThresholdForGroups(Ds = ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
-    i_groups <- inverseHaarWaveletTransformForGroups(cs, denoiseDs)
+    denoised_ds <- ThresholdForGroups(Ds = ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
+    i_groups <- inverseHaarWaveletTransformForGroups(cs, denoised_ds)
     i_groups <- lapply(i_groups, function(x) x * 8^0.5)
-    allData <- movingAverage(i_groups, term)
-    allData <- apply_inverse_transform(allData, dt, var)
-    allData <- pmax(allData, 0)
+    all_data <- movingAverage(i_groups, term)
+    all_data <- apply_inverse_transform(all_data, dt, var)
+    all_data <- pmax(all_data, 0)
 
-    PredictionData <- list(predictionData = tail(allData, predictionTerm), execute_time = time)
+    PredictionData <- list(predictionData = tail(all_data, predictionTerm), execute_time = time)
     return(PredictionData)
 }
 
@@ -144,16 +143,16 @@ QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, ind
     }
     i_groups <- inverseHaarWaveletTransformForGroups(Cs, dDs)
     i_groups <- lapply(i_groups, function(x) x * 8^0.5)
-    allData <- movingAverage(i_groups, term)
-    allData <- apply_inverse_transform(allData, dt, var = 1)
-    allData <- pmax(allData, 0)
+    all_data <- movingAverage(i_groups, term)
+    all_data <- apply_inverse_transform(all_data, dt, var = 1)
+    all_data <- pmax(all_data, 0)
 
     best_coe <- data.frame(a = numeric(), b = numeric(), c = numeric())
     for (m in seq(1, 8, by = 1)) {
         tmp_best_coe <- data.frame(a = sorted_best_coe[[m]]$a[[1]], b = sorted_best_coe[[m]]$b[[1]], c = sorted_best_coe[[m]]$c[[1]])
         best_coe <- rbind(best_coe, tmp_best_coe)
     }
-    predictionData <- list(predictionData = tail(allData, predictionTerm), regressionCoefficient = best_coe, execute_time = time)
+    predictionData <- list(predictionData = tail(all_data, predictionTerm), regressionCoefficient = best_coe, execute_time = time)
     return(predictionData)
 }
 
@@ -253,6 +252,8 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution, na
     return(inverse_data[1:prediction_term])
 }
 
+# private
+
 get_all_coefficients_data <- function(Cs, Ds) {
     tmp_Cs_4_1 <- list()
     tmp_Ds <- vector("list", 7)  # D[1][1] ~ D[3][1]
@@ -283,21 +284,21 @@ prepare_data <- function(Cs, Ds, predictionTerm) {
     return(coe)
 }
 
-apply_inverse_transform <- function(allData, dt, var) {
+apply_inverse_transform <- function(all_data, dt, var) {
     if (dt == "A1") {
-        return(inverseAnscombeTransformFromGroup(allData, var))
+        return(inverseAnscombeTransformFromGroup(all_data, var))
     } else if (dt == "A2") {
-        return(inverseAnscombeTransform2FromGroup(allData, var))
+        return(inverseAnscombeTransform2FromGroup(all_data, var))
     } else if (dt == "A3") {
-        return(inverseAnscombeTransform3FromGroup(allData, var))
+        return(inverseAnscombeTransform3FromGroup(all_data, var))
     } else if (dt == "B1") {
-        return(inverseBartlettTransformFromGroup(allData, var))
+        return(inverseBartlettTransformFromGroup(all_data, var))
     } else if (dt == "B2") {
-        return(inverseBartlettTransform2FromGroup(allData, var))
+        return(inverseBartlettTransform2FromGroup(all_data, var))
     } else if (dt == "Fr") {
-        return(inverseFreemanTransformFromGroup(allData, var))
+        return(inverseFreemanTransformFromGroup(all_data, var))
     } else {
-        return(allData)
+        return(all_data)
     }
 }
 
