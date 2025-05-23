@@ -38,7 +38,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
     training_percentage <- training_percentage_list[[j]]
     training_data <- data[1:ceiling(length(data) * training_percentage)]
     max_resolution_level <- floor(log2(length(training_data))) + 1
-    pmae_result_each_resolution <- data.frame(matrix(nrow = max_resolution_level, ncol = 2))
+    pmae_result_each_resolution <- data.frame(matrix(nrow = max_resolution_level, ncol = 3))
     for (k in seq(1, max_resolution_level, by = 1)) {
       name <- paste0("./output/", dataset_name_list[[i]], "_", training_percentage_list[[j]], "/", "resolution_", k, "/")
       if (!dir.exists(name)) {
@@ -47,11 +47,12 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       print(name)
       wavelet_decomposition_prediciton_result <- WaveletDecomposePrediction(data, training_percentage, resolution = k, name, regression_model = "periodic")
       predictionTerm <- floor((1 - training_percentage) * length(data))
-      pmae_wavelet <- pmae(wavelet_decomposition_prediciton_result, tail(data, predictionTerm))
+      pmae_wavelet <- pmae(wavelet_decomposition_prediciton_result$prediction_data, tail(data, predictionTerm))
       pmae_result_each_resolution[k, 1] <- k
       pmae_result_each_resolution[k, 2] <- pmae_wavelet
+      pmae_result_each_resolution[k, 3] <- wavelet_decomposition_prediciton_result$execute_time$callback_msg
     }
     name <- paste0("./output/", dataset_name_list[[i]], "_", training_percentage_list[[j]], "/")
-    write.table(pmae_result_each_resolution, file = paste0(name, "summary.txt"), sep = "\t", row.names = FALSE, col.names = c("resolution", "pmae"))
+    write.table(pmae_result_each_resolution, file = paste0(name, "summary.txt"), sep = "\t", row.names = FALSE, col.names = c("resolution", "pmae", "execution_time"))
   }
 }

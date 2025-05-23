@@ -200,6 +200,7 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution, na
     cl <- makeCluster(num_cores)
     registerDoParallel(cl)
 
+    tic()
     if (regression_model == "arima") {
         prediction_result <- foreach(j = seq(1, resolution + 1), .packages = c("forecast")) %dopar% {
             training_data <- unlist(trading_coefficients[[j]])
@@ -223,6 +224,7 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution, na
     }
 
     stopCluster(cl)
+    time <- toc()
 
     CreateGraphForWaveleDecomposePrediction(prediction_result, all_coefficients_data, length(data), prediction_term, name, resolution)
 
@@ -249,7 +251,8 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution, na
         }
         inverse_data <- a
     }
-    return(inverse_data[1:prediction_term])
+    prediction_result <- list(prediction_data = inverse_data[1:prediction_term], execute_time = time)
+    return(prediction_result)
 }
 
 # private
