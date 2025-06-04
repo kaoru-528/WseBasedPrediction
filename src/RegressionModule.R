@@ -158,7 +158,7 @@ run_lstm_regression <- function(training_data, prediction_term) {
 
         # LSTMモデルの構築
         model <- keras_model_sequential() %>%
-            layer_lstm(units = 100, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
+            layer_lstm(units = 1000, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
             layer_dense(units = 1, activation = "relu")
 
         model %>% compile(
@@ -177,7 +177,7 @@ run_lstm_regression <- function(training_data, prediction_term) {
 
     # 全データで再学習し予測
     model <- keras_model_sequential() %>%
-        layer_lstm(units = 100, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
+        layer_lstm(units = 1000, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
         layer_dense(units = 1, activation = "relu")
     model %>% compile(
         loss = 'mean_squared_error',

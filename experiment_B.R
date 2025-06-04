@@ -41,7 +41,8 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
     max_resolution_level <- floor(log2(length(training_data))) + 1
     pmae_result_each_resolution <- data.frame(matrix(nrow = max_resolution_level, ncol = 3))
     for (k in seq(1, max_resolution_level, by = 1)) {
-      name <- paste0("./output/", dataset_name_list[[i]], "_", training_percentage_list[[j]], "/", "resolution_", k, "/")
+      dataset_with_prediction_percentage <- paste0(dataset_name_list[[i]], "_", training_percentage_list[[j]])
+      name <- paste0("./output/", dataset_with_prediction_percentage, "/", "resolution_", k, "/")
       resolution_level <- k
       regression_model <- "lstm"
       if (!dir.exists(name)) {
@@ -73,6 +74,6 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       pmae_result_each_resolution[k, 3] <- wavelet_decomposition_prediciton_result$execute_time$callback_msg
     }
     name <- paste0("./output/", dataset_name_list[[i]], "_", training_percentage_list[[j]], "/")
-    write.table(pmae_result_each_resolution, file = paste0(name, "summary.txt"), sep = "\t", row.names = FALSE, col.names = c("resolution", "pmae", "execution_time"))
+    write.table(pmae_result_each_resolution, file = paste0(name, dataset_with_prediction_percentage,"_summary.txt"), sep = "\t", row.names = FALSE, col.names = c("resolution", "pmae", "execution_time"))
   }
 }
