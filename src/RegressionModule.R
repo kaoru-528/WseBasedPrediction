@@ -120,4 +120,85 @@ run_parallel_arima_regression <- function(coe, prediction_term) {
 
     return(prediction_result)
 }
+
+run_lstm_regression <- function(training_data, prediction_term) {
+    min_val <- min(training_data)
+    max_val <- max(training_data)
+
+    training_data_norm <- (training_data - min_val) / (max_val - min_val)
+
+    # --- 入力ベクトルの大きさ: 3 に変換 ---
+    if (length(training_data_norm) < 4) {
+        input_size <- 1
+    } else {
+       input_size <- 3
+    }
+    X <- NULL
+    Y <- NULL
+    for (i in 1:(length(training_data_norm) - input_size)) {
+        X <- rbind(X, training_data_norm[i:(i + input_size - 1)])
+        Y <- c(Y, training_data_norm[i + input_size])
+    }
+
+    # --- 時系列交差検証 (k=3) ---
+    n <- nrow(X)
+    k <- 2  # 3分割交差検証
+    fold_size <- floor(n / k)
+    val_scores <- c()
+
+    for (fold in 1:k) {
+        val_idx <- ((fold - 1) * fold_size + 1):(fold * fold_size)
+        if (fold == k) val_idx <- ((fold - 1) * fold_size + 1):n
+        train_idx <- setdiff(1:n, val_idx)
+
+        train_X <- X[train_idx, , drop = FALSE]
+        train_Y <- Y[train_idx]
+        val_X <- X[val_idx, , drop = FALSE]
+        val_Y <- Y[val_idx]
+
+        # LSTMモデルの構築
+        model <- keras_model_sequential() %>%
+            layer_lstm(units = 100, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
+            layer_dense(units = 1, activation = "relu")
+
+        model %>% compile(
+            loss = 'mean_squared_error',
+            optimizer = optimizer_adam(lr = 0.001)
+        )
+
+        train_X_arr <- array_reshape(train_X, c(nrow(train_X), input_size, 1))
+        val_X_arr <- array_reshape(val_X, c(nrow(val_X), input_size, 1))
+
+        model %>% fit(train_X_arr, train_Y, epochs = 500, batch_size = 32, verbose = 0)
+        val_pred <- model %>% predict(val_X_arr)
+        val_scores <- c(val_scores, mean((val_Y - val_pred)^2))
+    }
+    print(paste("Fold MSE:", val_scores))
+
+    # 全データで再学習し予測
+    model <- keras_model_sequential() %>%
+        layer_lstm(units = 100, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
+        layer_dense(units = 1, activation = "relu")
+    model %>% compile(
+        loss = 'mean_squared_error',
+        optimizer = optimizer_adam(lr = 0.001)
+    )
+    train_X_arr <- array_reshape(X, c(nrow(X), input_size, 1))
+    model %>% fit(train_X_arr, Y, epochs = 500, batch_size = 32, verbose = 0)
+
+    # 予測用データ作成
+    last_seq <- training_data_norm[(length(training_data_norm) - input_size + 1):length(training_data_norm)]
+    preds_norm <- c()
+    for (h in 1:prediction_term) {
+        input_pred <- array_reshape(last_seq, c(1, input_size, 1))
+        pred <- as.numeric(model %>% predict(input_pred))
+        preds_norm <- c(preds_norm, pred)
+        last_seq <- c(last_seq[-1], pred)
+    }
+
+    # 逆正規化
+    forecasted <- preds_norm * (max_val - min_val) + min_val
+    prediction_result <- forecasted
+    return(prediction_result)
+}
 FALSE

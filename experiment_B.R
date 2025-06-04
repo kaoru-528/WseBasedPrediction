@@ -10,6 +10,7 @@ library(foreach)
 library(tictoc)
 library(forecast)
 library(ggplot2)
+library(keras)
 
 rm(list = ls())
 periodicBasedPrediction_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WseBasedPrediction.R")
@@ -41,11 +42,30 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
     pmae_result_each_resolution <- data.frame(matrix(nrow = max_resolution_level, ncol = 3))
     for (k in seq(1, max_resolution_level, by = 1)) {
       name <- paste0("./output/", dataset_name_list[[i]], "_", training_percentage_list[[j]], "/", "resolution_", k, "/")
+      resolution_level <- k
+      regression_model <- "lstm"
       if (!dir.exists(name)) {
         dir.create(name, recursive = TRUE)
       }
       print(name)
-      wavelet_decomposition_prediciton_result <- WaveletDecomposePrediction(data, training_percentage, resolution = k, name, regression_model = "periodic")
+      wavelet_decomposition_prediciton_result <-  tryCatch(
+      {
+        WaveletDecomposePrediction(
+          data,
+          training_percentage,
+          resolution_level,
+          name,
+          regression_model
+        )
+      },
+      error = function(e) {
+        warning(paste("LSTM回帰失敗:", e$message))
+        list(
+          prediction_data = rep(NA, predictionTerm),
+          execute_time = list(callback_msg = NA)
+          )
+      }
+    )
       predictionTerm <- floor((1 - training_percentage) * length(data))
       pmae_wavelet <- pmae(wavelet_decomposition_prediciton_result$prediction_data, tail(data, predictionTerm))
       pmae_result_each_resolution[k, 1] <- k
