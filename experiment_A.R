@@ -10,6 +10,7 @@ library(foreach)
 library(tictoc)
 library(forecast)
 library(ggplot2)
+library(keras)
 
 rm(list = ls())
 periodicBasedPrediction_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WseBasedPrediction.R")
@@ -57,8 +58,8 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       # PeriodicResult = PeriodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)
       # QuatraticResult = QuatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)
 
-      ArimaResult_soft = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name)
-      ArimaResult_hard = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name)
+      ArimaResult_soft = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name)
+      ArimaResult_hard = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name)
 
       term <- length(data)
       predictionTerm <- floor((1 - training_percentage) * term)
