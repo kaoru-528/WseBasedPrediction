@@ -125,7 +125,7 @@ LstmBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, i
         prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
     }
     time <- toc()
-    CreateGraphForArimaBasedPrediction(prediction_result, all_coefficients_data, coeLength, prediction_term)
+    CreateGraphForArimaBasedPrediction(prediction_result, all_coefficients_data, coeLength, prediction_term, name)
     y <- c(1:coeLength)
     C_4_1 <- c(unlist(coefficients_data_for_training[[1]]), prediction_result[[1]]$mean)
     D_1_1 <- c(unlist(coefficients_data_for_training[[2]]), prediction_result[[2]]$mean)
