@@ -11,6 +11,7 @@ library(tictoc)
 library(forecast)
 library(ggplot2)
 library(keras)
+library(prophet)
 
 rm(list = ls())
 periodicBasedPrediction_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WseBasedPrediction.R")
@@ -32,7 +33,7 @@ source(evaluator_Path)
 dataset_name_list <- list("DS1", "DS2", "DS3", "DS4", "DS5", "DS6")
 training_percentage_list <- list(0.3, 0.5, 0.7)
 
-for (i in seq(1, length(dataset_name_list), by = 1)) {
+for (i in seq(1, 1, by = 1)) {
   for (j in seq(1, length(training_percentage_list), by = 1)) {
     dataPath <- paste0("/DS/", dataset_name_list[[i]], ".txt")
     data <- loadData(dataPath)
@@ -44,7 +45,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       dataset_with_prediction_percentage <- paste0(dataset_name_list[[i]], "_", training_percentage_list[[j]])
       name <- paste0("./output/", dataset_with_prediction_percentage, "/", "resolution_", k, "/")
       resolution_level <- k
-      regression_model <- "lstm"
+      regression_model <- "rnn"
       if (!dir.exists(name)) {
         dir.create(name, recursive = TRUE)
       }

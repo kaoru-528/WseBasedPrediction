@@ -221,6 +221,13 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
     all_wavelet_coefficients <- all_coefficients$wavelet_coefficients
     all_scaling_coefficients <- all_coefficients$scaling_coefficients
 
+    for(i in seq(1, length((wavelet_coefficients)), by = 1)) {
+        len = length(wavelet_coefficients[[i]])
+        wavelet_coefficients[[i]] <- all_wavelet_coefficients[[i]][1:len]
+        scaling_coefficients[[i]] <- all_scaling_coefficients[[i]][1:len]
+    }
+
+
     # 学習データの作成 wavelet係数とスケーリング係数を結合
     trading_coefficients <- list()
     all_coefficients_data <- list()
@@ -282,7 +289,35 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
         prediction_result <- list()
         for (j in seq(1, resolution_level + 1)) {
             training_data <- unlist(trading_coefficients[[j]])
-            prediction_result_each_resolution_level <- run_lstm_regression(training_data, coefficients_prediction_term_list[[j]])
+            if (length(training_data) == 1) {
+                prediction_result[[j]] <- data.frame(mean = rep(training_data, coefficients_prediction_term_list[[j]]))
+            } else if (length(training_data) == 2) {
+                prediction_result[[j]] <- data.frame(mean = rep(mean(training_data), coefficients_prediction_term_list[[j]]))
+            } else {
+                # LSTMモデルの適用
+                prediction_result_each_resolution_level <- run_lstm_regression(training_data, coefficients_prediction_term_list[[j]])
+                prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
+            }
+        }
+    } else if (regression_model == "rnn") {
+        prediction_result <- list()
+        for (j in seq(1, resolution_level + 1)) {
+            training_data <- unlist(trading_coefficients[[j]])
+            if (length(training_data) == 1) {
+                prediction_result[[j]] <- data.frame(mean = rep(training_data, coefficients_prediction_term_list[[j]]))
+            } else if (length(training_data) == 2) {
+                prediction_result[[j]] <- data.frame(mean = rep(mean(training_data), coefficients_prediction_term_list[[j]]))
+            } else {
+                # RNNモデルの適用
+                prediction_result_each_resolution_level <- run_rnn_regression(training_data, coefficients_prediction_term_list[[j]])
+                prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
+            }
+        }
+    } else if (regression_model == "prophet") {
+        prediction_result <- list()
+        for (j in seq(1, resolution_level + 1)) {
+            training_data <- unlist(trading_coefficients[[j]])
+            prediction_result_each_resolution_level <- run_prophet_regression(training_data, coefficients_prediction_term_list[[j]])
             prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
         }
     }
