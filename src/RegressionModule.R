@@ -227,7 +227,7 @@ run_rnn_regression <- function(training_data, prediction_term) {
 
     # RNNモデルの構築
     model <- keras_model_sequential() %>%
-        layer_simple_rnn(units = 16, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
+        layer_simple_rnn(units = 4, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
         layer_dropout(rate = 0.1) %>%
         layer_dense(units = 1, activation = "relu")
 
@@ -237,7 +237,7 @@ run_rnn_regression <- function(training_data, prediction_term) {
     )
 
     train_X_arr <- array_reshape(X, c(nrow(X), input_size, 1))
-    model %>% fit(train_X_arr, Y, epochs = 50, batch_size = 2, verbose = 0)
+    model %>% fit(train_X_arr, Y, epochs = 20, batch_size = 1, verbose = 0)
     # 予測用データ作成
     last_seq <- training_data_norm[(length(training_data_norm) - input_size + 1):length(training_data_norm)]
     preds_norm <- c()
@@ -257,7 +257,7 @@ run_rnn_regression <- function(training_data, prediction_term) {
 run_prophet_regression <- function(training_data, prediction_term) {
    df <- data.frame(ds = seq.Date(from = as.Date("2000-01-01"), by = "day", length.out = length(training_data)),
                      y = training_data)
-    m <- prophet(df, yearly.seasonality = FALSE, weekly.seasonality = FALSE, daily.seasonality = FALSE, growth = "logistic")
+    m <- prophet(df, yearly.seasonality = FALSE, weekly.seasonality = FALSE, daily.seasonality = FALSE)
     future <- make_future_dataframe(m, periods = prediction_term, freq = "day")
     forecast <- predict(m, future)
     # 予測値のみ抽出

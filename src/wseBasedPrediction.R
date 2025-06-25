@@ -317,8 +317,12 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
         prediction_result <- list()
         for (j in seq(1, resolution_level + 1)) {
             training_data <- unlist(trading_coefficients[[j]])
-            prediction_result_each_resolution_level <- run_prophet_regression(training_data, coefficients_prediction_term_list[[j]])
-            prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
+            if(length(training_data) == 1) {
+                prediction_result[[j]] <- data.frame(mean = rep(training_data, coefficients_prediction_term_list[[j]]))
+            } else {
+                prediction_result_each_resolution_level <- run_prophet_regression(training_data, coefficients_prediction_term_list[[j]])
+                prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
+            }
         }
     }
 
