@@ -10,6 +10,7 @@ library(foreach)
 library(tictoc)
 library(forecast)
 library(ggplot2)
+library(keras)
 
 rm(list = ls())
 periodicBasedPrediction_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WseBasedPrediction.R")
@@ -48,8 +49,8 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       initThresholdvalue <- 1
       training_percentage <- training_percentage_list[[l]]
       var <- 1
-
-      name <- paste0("./output/", dataset_name_list[[i]], "_", dt_thresholdName_pair[[j]][1], "_", dt_thresholdName_pair[[j]][2], "_", training_percentage_list[[l]], "/")
+      dataset_with_prediction_percentage <- paste0(dataset_name_list[[i]], "_", dt_thresholdName_pair[[j]][1], "_", dt_thresholdName_pair[[j]][2], "_", training_percentage_list[[l]])
+      name <- paste0("./output/", dataset_with_prediction_percentage, "/")
       if (!dir.exists(name)) {
         dir.create(name, recursive = TRUE)
       }
@@ -57,8 +58,8 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       # PeriodicResult = PeriodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)
       # QuatraticResult = QuatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)
 
-      ArimaResult_soft = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name)
-      ArimaResult_hard = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name)
+      ArimaResult_soft = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name)
+      ArimaResult_hard = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name)
 
       term <- length(data)
       predictionTerm <- floor((1 - training_percentage) * term)
@@ -77,7 +78,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
 
       print(paste0("pmae_soft: ", pmae_soft, ",実行時間: ", ArimaResult_soft$execute_time$callback_msg))
       print(paste0("pmae_hard: ", pmae_hard, ",実行時間: ", ArimaResult_hard$execute_time$callback_msg))
-      summary_data_name <- paste0(name, "summary.txt")
+      summary_data_name <- paste0(name, dataset_with_prediction_percentage, "_", "summary.txt")
 
       # 1つのファイルに書き出す
       write.table(output_data, file = summary_data_name, row.names = FALSE, col.names = TRUE, quote = FALSE)
