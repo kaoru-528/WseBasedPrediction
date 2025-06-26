@@ -142,41 +142,6 @@ run_lstm_regression <- function(training_data, prediction_term) {
         Y <- c(Y, training_data_norm[i + input_size])
     }
 
-    # --- 時系列交差検証 (k=3) ---
-    # n <- nrow(X)
-    # k <- 2  # 3分割交差検証
-    # fold_size <- floor(n / k)
-    # val_scores <- c()
-
-    # for (fold in 1:k) {
-    #     val_idx <- ((fold - 1) * fold_size + 1):(fold * fold_size)
-    #     if (fold == k) val_idx <- ((fold - 1) * fold_size + 1):n
-    #     train_idx <- setdiff(1:n, val_idx)
-
-    #     train_X <- X[train_idx, , drop = FALSE]
-    #     train_Y <- Y[train_idx]
-    #     val_X <- X[val_idx, , drop = FALSE]
-    #     val_Y <- Y[val_idx]
-
-    #     # LSTMモデルの構築
-    #     model <- keras_model_sequential() %>%
-    #         layer_lstm(units = 100, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
-    #         layer_dense(units = 1, activation = "relu")
-
-    #     model %>% compile(
-    #         loss = 'mean_squared_error',
-    #         optimizer = optimizer_adam(lr = 0.001)
-    #     )
-
-    #     train_X_arr <- array_reshape(train_X, c(nrow(train_X), input_size, 1))
-    #     val_X_arr <- array_reshape(val_X, c(nrow(val_X), input_size, 1))
-
-    #     model %>% fit(train_X_arr, train_Y, epochs = 500, batch_size = 32, verbose = 0)
-    #     val_pred <- model %>% predict(val_X_arr)
-    #     val_scores <- c(val_scores, mean((val_Y - val_pred)^2))
-    # }
-    # print(paste("Fold MSE:", val_scores))
-
     # 全データで再学習し予測
     model <- keras_model_sequential() %>%
         layer_lstm(units = 1000, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
