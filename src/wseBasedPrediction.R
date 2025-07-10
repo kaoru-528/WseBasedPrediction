@@ -121,11 +121,11 @@ LstmBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, i
     prediction_result <- list()
     for (j in seq(1, 8, by = 1)) {
         training_data <- unlist(coefficients_data_for_training[[j]])
-        prediction_result_each_resolution_level <- run_lstm_regression(training_data, prediction_term)
+        prediction_result_each_resolution_level <- run_rnn_regression(training_data, prediction_term)
         prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
     }
     time <- toc()
-    CreateGraphForArimaBasedPrediction(prediction_result, all_coefficients_data, coeLength, prediction_term, name)
+    # CreateGraphForArimaBasedPrediction(prediction_result, all_coefficients_data, coeLength, prediction_term, name)
     y <- c(1:coeLength)
     C_4_1 <- c(unlist(coefficients_data_for_training[[1]]), prediction_result[[1]]$mean)
     D_1_1 <- c(unlist(coefficients_data_for_training[[2]]), prediction_result[[2]]$mean)
@@ -146,13 +146,29 @@ LstmBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, i
         ds[[k]][[3]][2] <- D_2_2[[k]]
         ds[[k]][[4]][1] <- D_3_1[[k]]
     }
-    denoised_ds <- ThresholdForGroups(Ds = ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
-    i_groups <- inverseHaarWaveletTransformForGroups(cs, denoised_ds)
-    i_groups <- lapply(i_groups, function(x) x * 8^0.5)
-    all_data <- movingAverage(i_groups, term)
-    all_data <- apply_inverse_transform(all_data, dt, var = 1)
-    all_data <- pmax(all_data, 0)
-    PredictionData <- list(predictionData = tail(all_data, prediction_term), execute_time = time)
+    if (thresholdMode == "soft" || thresholdMode == "hard") {
+        denoised_ds <- ThresholdForGroups(Ds = ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
+        i_groups <- inverseHaarWaveletTransformForGroups(cs, denoised_ds)
+        i_groups <- lapply(i_groups, function(x) x * 8^0.5)
+        all_data <- movingAverage(i_groups, term)
+        all_data <- apply_inverse_transform(all_data, dt, var = 1)
+        all_data <- pmax(all_data, 0)
+        PredictionData <- list(predictionData = tail(all_data, prediction_term), execute_time = time)
+    } else {
+        denoised_ds_soft <- ThresholdForGroups(Ds = ds, thresholdMode = "soft", thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
+        denoised_ds_hard <- ThresholdForGroups(Ds = ds, thresholdMode = "hard", thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
+        i_groups_soft <- inverseHaarWaveletTransformForGroups(cs, denoised_ds_soft)
+        i_groups_soft <- lapply(i_groups_soft, function(x) x * 8^0.5)
+        all_data_soft <- movingAverage(i_groups_soft, term)
+        all_data_soft <- apply_inverse_transform(all_data_soft, dt, var = 1)
+        all_data_soft <- pmax(all_data_soft, 0)
+        i_groups_hard <- inverseHaarWaveletTransformForGroups(cs, denoised_ds_hard)
+        i_groups_hard <- lapply(i_groups_hard, function(x) x * 8^0.5)
+        all_data_hard <- movingAverage(i_groups_hard, term)
+        all_data_hard <- apply_inverse_transform(all_data_hard, dt, var = 1)
+        all_data_hard <- pmax(all_data_hard, 0)
+        PredictionData <- list(soft = list( predictionData = tail(all_data_soft, prediction_term), execute_time = time), hard = list( predictionData = tail(all_data_hard, prediction_term), execute_time = time))
+    }
     return(PredictionData)
 }
 
@@ -328,7 +344,7 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
 
     time <- toc()
 
-    CreateGraphForWaveleDecomposePrediction(prediction_result, all_coefficients_data, length(data), prediction_term, name, resolution_level)
+    # CreateGraphForWaveleDecomposePrediction(prediction_result, all_coefficients_data, length(data), prediction_term, name, resolution_level)
 
     prediction_wavelet <- list()
     prediction_scaling <- list()

@@ -53,20 +53,22 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       # NUM_EXPERIMENTS回実行
       for(exp in seq(1, NUM_EXPERIMENTS, by = 1)) {
         print(paste("Experiment", exp, "of", NUM_EXPERIMENTS))
+
+        RnnResult = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "double", index, initThresholdvalue, training_percentage, name)
         
-        ArimaResult_soft = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name)
-        ArimaResult_hard = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name)
+        RnnResult_soft = RnnResult$soft
+        RnnResult_hard = RnnResult$hard
 
         term <- length(data)
         predictionTerm <- floor((1 - training_percentage) * term)
 
-        pmae_soft <- pmae(ArimaResult_soft$predictionData, tail(data, predictionTerm))
-        pmae_hard <- pmae(ArimaResult_hard$predictionData, tail(data, predictionTerm))
+        pmae_soft <- pmae(RnnResult_soft$predictionData, tail(data, predictionTerm))
+        pmae_hard <- pmae(RnnResult_hard$predictionData, tail(data, predictionTerm))
 
         pmae_soft_results[exp] <- pmae_soft
         pmae_hard_results[exp] <- pmae_hard
-        execution_times_soft[exp] <- ArimaResult_soft$execute_time$callback_msg
-        execution_times_hard[exp] <- ArimaResult_hard$execute_time$callback_msg
+        execution_times_soft[exp] <- RnnResult_soft$execute_time$callback_msg
+        execution_times_hard[exp] <- RnnResult_hard$execute_time$callback_msg
       }
 
       # Soft thresholding の統計計算
