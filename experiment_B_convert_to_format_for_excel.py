@@ -53,9 +53,9 @@ def process_single_summary_file(filepath, all_tables_data_dict):
             continue
         if not header_found:
             try:
-                if "resolution" in parts and "pmae" in parts:
+                if "resolution" in parts and "top10%_pmae_mean" in parts:
                     resolution_col_idx = parts.index("resolution")
-                    pmae_col_idx = parts.index("pmae")
+                    pmae_col_idx = parts.index("top10%_pmae_mean")
                     header_found = True
                 continue
             except ValueError:

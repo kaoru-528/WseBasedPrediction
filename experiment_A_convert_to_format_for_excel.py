@@ -24,8 +24,12 @@ def get_target_table_key_from_percentage_str(percentage_str):
     if percentage_str == "0.7": return "70%"
     return None
 
-# --- 2. ファイル処理とデータマッピング (★エラー処理を強化) ---
+# --- 2. ファイル処理とデータマッピング (★最新形式に対応) ---
 def process_summary_directory(dir_path, all_tables_data):
+    """
+    指定されたディレクトリを処理し、情報を抽出してテーブルデータを更新する。
+    サマリーファイルは 'threshold_mode' と 'best_pmae' を列に持つ形式を前提とする。
+    """
     dir_name = os.path.basename(dir_path)
     match = re.match(r"^(DS[1-6])_([a-zA-Z0-9_]+)_(\d\.\d+)$", dir_name)
     if not match: return False
@@ -43,36 +47,43 @@ def process_summary_directory(dir_path, all_tables_data):
         print(f"ファイル読み込みエラー: {summary_file_path} ({e})")
         return False
 
-    if len(lines) < 2: return False
+    if len(lines) < 2:
+        print(f"警告: ファイル '{summary_file_path}' にヘッダーまたはデータ行が不足しています。")
+        return False
 
-    headers = lines[0].split('\t')
-    last_data_values = lines[-1].split('\t')
-    
+    # ▼▼▼ 新しいファイル形式の解析ロジック ▼▼▼
+    header_line = lines[0]
+    headers = header_line.split('\t')
+
+    try:
+        # 必要な列のインデックスを取得
+        mode_idx = headers.index("threshold_mode")
+        pmae_idx = headers.index("top10%_pmae_mean")
+    except ValueError:
+        print(f"警告: ファイル '{summary_file_path}' のヘッダーが想定形式（'threshold_mode', 'top10%_pmae_mean'を含む）ではありません。")
+        return False
+
     pmae_hard_value = "NA"
     pmae_soft_value = "NA"
     found_data = False
 
-    # ▼▼▼ 修正箇所: 'pmae_hard'列の存在を安全に確認 ▼▼▼
-    try:
-        pmae_hard_idx = headers.index("pmae_hard")
-        if len(last_data_values) > pmae_hard_idx:
-            pmae_hard_value = last_data_values[pmae_hard_idx]
-            found_data = True
-    except ValueError:
-        # 'pmae_hard' がヘッダーにない場合、警告を出力して処理を続ける
-        print(f"警告: ファイル '{summary_file_path}' に 'pmae_hard' 列が見つかりません。")
+    # データ行（ヘッダーの次から）をループしてhard/softの値を探す
+    for data_line in lines[1:]:
+        values = data_line.split('\t')
+        if len(values) <= max(mode_idx, pmae_idx):
+            continue  # 列が足りない不正な行はスキップ
 
-    # ▼▼▼ 修正箇所: 'pmae_soft'列の存在を安全に確認 ▼▼▼
-    try:
-        pmae_soft_idx = headers.index("pmae_soft")
-        if len(last_data_values) > pmae_soft_idx:
-            pmae_soft_value = last_data_values[pmae_soft_idx]
-            found_data = True
-    except ValueError:
-        # 'pmae_soft' がヘッダーにない場合、警告を出力して処理を続ける
-        print(f"警告: ファイル '{summary_file_path}' に 'pmae_soft' 列が見つかりません。")
+        mode = values[mode_idx]
+        pmae = values[pmae_idx]
 
-    # マッピング処理 (変更なし)
+        if mode == "hard":
+            pmae_hard_value = pmae
+            found_data = True
+        elif mode == "soft":
+            pmae_soft_value = pmae
+            found_data = True
+
+    # 抽出した値をテーブルにマッピング
     target_table = all_tables_data[table_key]
     hard_col_name = f"{method_key}_hard"
     if hard_col_name in target_table["column_headers"]:
@@ -81,15 +92,13 @@ def process_summary_directory(dir_path, all_tables_data):
     soft_col_name = f"{method_key}_soft"
     if soft_col_name in target_table["column_headers"]:
         target_table["data"][ds_key][soft_col_name] = pmae_soft_value
-    
-    # データが一つでも見つかった場合のみ「処理成功」とみなす
+
     if found_data:
-        print(f"情報: ディレクトリ '{dir_name}' を処理しました。")
+        print(f"情報: ディレクトリ '{dir_name}' を処理しました。 (Hard: {pmae_hard_value}, Soft: {pmae_soft_value})")
         return True
     else:
-        # 必要な列が一つも見つからなかった場合は「処理失敗」とみなし、カウントしない
+        print(f"警告: ファイル '{summary_file_path}' から hard/soft データが見つかりませんでした。")
         return False
-
 
 # --- 3. Excel貼り付け用に出力 (変更なし) ---
 def print_tables_for_excel(all_tables_data):
@@ -124,6 +133,6 @@ if __name__ == "__main__":
                 processed_count += 1
         dirs.clear()
 
-    print(f"\n情報: {processed_count} 個のディレクトリからデータを抽出しました。")
+    print(f"\n情報: {processed_count} 個の該当ディレクトリを処理しました。")
     print("\n--- Excel貼り付け用データ ---")
     print_tables_for_excel(tables_data_global)
