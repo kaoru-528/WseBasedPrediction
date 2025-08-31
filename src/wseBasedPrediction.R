@@ -226,7 +226,7 @@ QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, ind
 
 
 WaveletDecomposePrediction <- function(data, training_percentage, resolution_level, name, regression_model) {
-    training_data <- data[1:ceiling(length(data) * training_percentage)]
+    training_data <- data[1:ceiling(length(data) * training_percentage)] / sqrt(2 ** resolution_level)
     prediction_term <- floor((1 - training_percentage) * length(data))
 
     coefficients <- calculate_wavelet_and_scaling_coefficients(training_data, resolution_level)
@@ -362,14 +362,14 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
         a <- list()
         for (j in seq(1, length(prediction_scaling[[i]]), by = 1)) {
             if (j == 1) {
-                a <- inverse_data[ceiling(j/2)] + prediction_scaling[[i]][j]
+                a <- (inverse_data[ceiling(j/2)] + prediction_scaling[[i]][j]) / sqrt(2)
             } else {
-                a <- append(a, inverse_data[ceiling(j/2)] + prediction_scaling[[i]][j])
+                a <- append(a, (inverse_data[ceiling(j/2)] + prediction_scaling[[i]][j]) / sqrt(2))
             }
         }
         inverse_data <- a
     }
-    prediction_result <- list(prediction_data = inverse_data[1:prediction_term], execute_time = time)
+    prediction_result <- list(prediction_data = inverse_data[1:prediction_term] * sqrt(2 ** resolution_level), execute_time = time)
     return(prediction_result)
 }
 
@@ -432,22 +432,21 @@ calculate_wavelet_and_scaling_coefficients <- function(training_data, resolution
 
     # Wavelet変換とスケーリング係数の計算
     for (i in 1:resolution_level) {
-        if (length(wavelet_coefficients[[i]])%%2 != 0) {
-            wavelet_coefficients[[i]][length(wavelet_coefficients[[i]]) + 1] <- wavelet_coefficients[[i]][length(wavelet_coefficients[[i]])]
+        if (length(wavelet_coefficients[[i]]) %% 2 != 0){
+        wavelet_coefficients[[i]][length(wavelet_coefficients[[i]]) + 1] = wavelet_coefficients[[i]][length(wavelet_coefficients[[i]])]
+    }
+    for (j in seq(1, length(wavelet_coefficients[[i]]) - 1, by = 2)) {
+        if(j == 1){
+            wavelet_coefficients[[i + 1]] <- (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1]) / sqrt(2)
+            scaling_coefficients[[i+1]] <- (wavelet_coefficients[[i]][j] - wavelet_coefficients[[i]][j + 1]) / sqrt(2)
+            scaling_coefficients[[i+1]] <- c(scaling_coefficients[[i+1]], -(wavelet_coefficients[[i]][j] - wavelet_coefficients[[i]][j + 1]) / sqrt(2))
         }
-        for (j in seq(1, length(wavelet_coefficients[[i]]) - 1, by = 2)) {
-            if (j == 1) {
-                wavelet_coefficients[[i + 1]] <- (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1])/2
-                tmp <- (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1])/2
-                scaling_coefficients[[i + 1]] <- wavelet_coefficients[[i]][j] - tmp
-                scaling_coefficients[[i + 1]] <- c(scaling_coefficients[[i + 1]], wavelet_coefficients[[i]][j + 1] - tmp)
-            } else {
-                wavelet_coefficients[[i + 1]] <- c(wavelet_coefficients[[i + 1]], (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1])/2)
-                tmp <- (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1])/2
-                scaling_coefficients[[i + 1]] <- c(scaling_coefficients[[i + 1]], wavelet_coefficients[[i]][j] - tmp)
-                scaling_coefficients[[i + 1]] <- c(scaling_coefficients[[i + 1]], wavelet_coefficients[[i]][j + 1] - tmp)
-            }
+        else{
+            wavelet_coefficients[[i + 1]] <- c(wavelet_coefficients[[i + 1]], (wavelet_coefficients[[i]][j] + wavelet_coefficients[[i]][j + 1]) / sqrt(2))
+            scaling_coefficients[[i+1]] <- c(scaling_coefficients[[i+1]], (wavelet_coefficients[[i]][j] - wavelet_coefficients[[i]][j + 1]) / sqrt(2))
+            scaling_coefficients[[i+1]] <- c(scaling_coefficients[[i+1]], -(wavelet_coefficients[[i]][j] - wavelet_coefficients[[i]][j + 1]) / sqrt(2))
         }
+    }
     }
 
     return(list(wavelet_coefficients = wavelet_coefficients, scaling_coefficients = scaling_coefficients))
