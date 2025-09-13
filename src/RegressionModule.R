@@ -10,7 +10,7 @@ quadratic_function <- function(x, a, b, c) {
 
 # 回帰実行関数
 run_regression_for_periodic_function <- function(j, coe) {
-    MAX_SEARCH_RANGE <- 1
+    MAX_SEARCH_RANGE <- 10
     tmp_coe <- unlist(coe)
     x <- seq(1, length(tmp_coe))
     model_coe_list <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())

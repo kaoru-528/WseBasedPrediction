@@ -45,7 +45,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       dataset_with_prediction_percentage <- paste0(dataset_name_list[[i]], "_", training_percentage_list[[j]])
       name <- paste0("./output/", dataset_with_prediction_percentage, "/", "resolution_", k, "/")
       resolution_level <- k
-      regression_model <- "prophet"
+      regression_model <- "periodic"  # "ARIMA", "LSTM"
       if (!dir.exists(name)) {
         dir.create(name, recursive = TRUE)
       }
