@@ -169,54 +169,75 @@ run_lstm_regression <- function(training_data, prediction_term) {
     return(prediction_result)
 }
 
-run_rnn_regression <- function(training_data, prediction_term) {
+run_rnn_regression_cv <- function(training_data, k_folds = 5, epochs = 20, batch_size = 1) {
     min_val <- min(training_data)
     max_val <- max(training_data)
-
     training_data_norm <- (training_data - min_val) / (max_val - min_val)
 
-    # --- 入力ベクトルの大きさ: 3 に変換 ---
+    # 入力サイズの決定
     if (length(training_data_norm) < 3) {
         input_size <- 1
     } else if (length(training_data_norm) < 5) {
         input_size <- 2
     } else {
-       input_size <- 3
-    }
-    X <- NULL
-    Y <- NULL
-    for (i in 1:(length(training_data_norm) - input_size)) {
-        X <- rbind(X, training_data_norm[i:(i + input_size - 1)])
-        Y <- c(Y, training_data_norm[i + input_size])
+        input_size <- 3
     }
 
-    # RNNモデルの構築
-    model <- keras_model_sequential() %>%
-        layer_simple_rnn(units = 4, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
-        layer_dropout(rate = 0.1) %>%
-        layer_dense(units = 1, activation = "relu")
+    # データ分割
+    fold_size <- floor(length(training_data_norm) / k_folds)
+    scores <- c()
 
-    model %>% compile(
-        loss = 'mean_squared_error',
-        optimizer = optimizer_adam(lr = 0.001)
-    )
+    for (fold in 1:k_folds) {
+        val_start <- ((fold - 1) * fold_size) + 1
+        val_end <- min(val_start + fold_size - 1, length(training_data_norm))
+        val_idx <- val_start:val_end
 
-    train_X_arr <- array_reshape(X, c(nrow(X), input_size, 1))
-    model %>% fit(train_X_arr, Y, epochs = 20, batch_size = 1, verbose = 0)
-    # 予測用データ作成
-    last_seq <- training_data_norm[(length(training_data_norm) - input_size + 1):length(training_data_norm)]
-    preds_norm <- c()
-    for (h in 1:prediction_term) {
-        input_pred <- array_reshape(last_seq, c(1, input_size, 1))
-        pred <- as.numeric(model %>% predict(input_pred))
-        preds_norm <- c(preds_norm, pred)
-        last_seq <- c(last_seq[-1], pred)
+        train_idx <- setdiff(1:length(training_data_norm), val_idx)
+        train_data <- training_data_norm[train_idx]
+        val_data <- training_data_norm[val_idx]
+
+        # 学習データ作成
+        X_train <- NULL
+        Y_train <- NULL
+        for (i in 1:(length(train_data) - input_size)) {
+            X_train <- rbind(X_train, train_data[i:(i + input_size - 1)])
+            Y_train <- c(Y_train, train_data[i + input_size])
+        }
+        if (is.null(X_train) || is.null(Y_train)) next
+
+        # 検証データ作成
+        X_val <- NULL
+        Y_val <- NULL
+        for (i in 1:(length(val_data) - input_size)) {
+            X_val <- rbind(X_val, val_data[i:(i + input_size - 1)])
+            Y_val <- c(Y_val, val_data[i + input_size])
+        }
+        if (is.null(X_val) || is.null(Y_val)) next
+
+        # RNNモデル構築
+        model <- keras_model_sequential() %>%
+            layer_simple_rnn(units = 4, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
+            layer_dropout(rate = 0.1) %>%
+            layer_dense(units = 1, activation = "relu")
+
+        model %>% compile(
+            loss = 'mean_squared_error',
+            optimizer = optimizer_adam(lr = 0.001)
+        )
+
+        train_X_arr <- array_reshape(X_train, c(nrow(X_train), input_size, 1))
+        val_X_arr <- array_reshape(X_val, c(nrow(X_val), input_size, 1))
+
+        model %>% fit(train_X_arr, Y_train, epochs = epochs, batch_size = batch_size, verbose = 0)
+
+        # 検証データで予測
+        preds <- model %>% predict(val_X_arr)
+        mse <- mean((Y_val - preds)^2)
+        scores <- c(scores, mse)
     }
 
-    # 逆正規化
-    forecasted <- preds_norm * (max_val - min_val) + min_val
-    prediction_result <- forecasted
-    return(prediction_result)
+    cv_score <- mean(scores)
+    return(cv_score)
 }
 
 run_prophet_regression <- function(training_data, prediction_term) {
