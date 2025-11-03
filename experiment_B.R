@@ -45,7 +45,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       dataset_with_prediction_percentage <- paste0(dataset_name_list[[i]], "_", training_percentage_list[[j]])
       name <- paste0("./output/", dataset_with_prediction_percentage, "/", "resolution_", k, "/")
       resolution_level <- k
-      regression_model <- "periodic"  # "ARIMA", "LSTM"
+      regression_model <- "arima"  # "ARIMA", "LSTM"
       if (!dir.exists(name)) {
         dir.create(name, recursive = TRUE)
       }
@@ -73,6 +73,15 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       pmae_result_each_resolution[k, 1] <- k
       pmae_result_each_resolution[k, 2] <- pmae_wavelet
       pmae_result_each_resolution[k, 3] <- wavelet_decomposition_prediciton_result$execute_time$callback_msg
+
+      prediction_data_filename <- paste0(name, "prediction_data.txt")
+      write.table(
+        data.frame(prediction_data = unlist(wavelet_decomposition_prediciton_result$prediction_data)),
+        file = prediction_data_filename,
+        row.names = FALSE,
+        col.names = FALSE,
+        sep = "\t"
+      )
     }
     name <- paste0("./output/", dataset_name_list[[i]], "_", training_percentage_list[[j]], "/")
     write.table(pmae_result_each_resolution, file = paste0(name, dataset_with_prediction_percentage,"_summary.txt"), sep = "\t", row.names = FALSE, col.names = c("resolution", "pmae", "execution_time"))
