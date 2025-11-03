@@ -5,6 +5,55 @@ source(Regression_Path)
 CreateGraph_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/CreateGraph.R")
 source(CreateGraph_Path)
 
+
+WaveletSlidingWindowPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage, name, regression_model) {
+    if(regression_model == "periodic") {
+        PeriodicBasedPrediction(
+            data = data,
+            dt = dt,
+            thresholdName = thresholdName,
+            thresholdMode = thresholdMode,
+            index = index,
+            initThresholdvalue = initThresholdvalue,
+            training_percentage = training_percentage
+        )
+    } else if (regression_model == "arima") {
+       ArimaBasedPrediction(
+        data = data,
+        dt = dt,
+        thresholdName = thresholdName,
+        thresholdMode = thresholdMode,
+        index = index,
+        initThresholdvalue = initThresholdvalue,
+        training_percentage = training_percentage,
+        name = name
+       )
+    } else if (regression_model == "rnn") {
+        RnnBasedPrediction(
+        data = data,
+        dt = dt,
+        thresholdName = thresholdName,
+        thresholdMode = thresholdMode,
+        index = index,
+        initThresholdvalue = initThresholdvalue,
+        training_percentage = training_percentage,
+        name = name
+        )
+    } else if (regression_model == "quatratic") {
+        QuatraticBasedPrediction(
+            data = data,
+            dt = dt,
+            thresholdName = thresholdName,
+            thresholdMode = thresholdMode,
+            index = index,
+            initThresholdvalue = initThresholdvalue,
+            training_percentage = training_percentage
+        )
+    }
+    else {
+       print("Unsupported regression model")
+    }
+}
 # 周期関数を用いた予測
 PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage) {
     term <- length(data)
@@ -222,8 +271,6 @@ QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, ind
     predictionData <- list(predictionData = tail(all_data, prediction_term), regressionCoefficient = best_coe, execute_time = time)
     return(predictionData)
 }
-
-
 
 WaveletDecomposePrediction <- function(data, training_percentage, resolution_level, name, regression_model) {
     training_data <- data[1:ceiling(length(data) * training_percentage)] / sqrt(2 ** resolution_level)

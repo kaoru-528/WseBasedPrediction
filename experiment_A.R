@@ -31,7 +31,7 @@ source(evaluator_Path)
 
 dataset_name_list <- list("DS1", "DS2", "DS3", "DS4", "DS5", "DS6")
 training_percentage_list <- list(0.3, 0.5, 0.7)
-dt_thresholdName_pair <- dt_thresholdName_pair <- list(c("none", "ldt"), c("A1", "ut"))
+dt_thresholdName_pair <- list(c("none", "ldt"), c("A1", "ut"))
 
 # PeriodicResult = PeriodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)
 
@@ -55,11 +55,8 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
         dir.create(name, recursive = TRUE)
       }
       print(name)
-      # PeriodicResult = PeriodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)
-      # QuatraticResult = QuatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)
-
-      prediction_result_soft = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name)
-      prediction_result_hard = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name)
+      prediction_result_soft = WaveletSlidingWindowPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name, regression_model = "arima")
+      prediction_result_hard = WaveletSlidingWindowPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name, regression_model = "arima")
 
       term <- length(data)
       predictionTerm <- floor((1 - training_percentage) * term)
