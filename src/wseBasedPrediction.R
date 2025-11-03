@@ -108,7 +108,7 @@ ArimaBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, 
     return(PredictionData)
 }
 
-LstmBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage, name) {
+RnnBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage, name) {
     term <- length(data)
     wsed_data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
     prediction_term <- floor((1 - training_percentage) * term)

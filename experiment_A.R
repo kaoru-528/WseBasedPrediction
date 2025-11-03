@@ -37,7 +37,7 @@ dt_thresholdName_pair <- dt_thresholdName_pair <- list(c("none", "ldt"), c("A1",
 
 # QuatraticResult = QuatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)\
 
-# ArimaResult_soft = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage)
+# prediction_result_soft = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage)
 for (i in seq(1, length(dataset_name_list), by = 1)) {
   for (j in seq(1, length(dt_thresholdName_pair), by = 1)) {
     for (l in seq(1, length(training_percentage_list), by = 1)) {
@@ -58,26 +58,26 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       # PeriodicResult = PeriodicBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)
       # QuatraticResult = QuatraticBasedPrediction(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage)
 
-      ArimaResult_soft = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name)
-      ArimaResult_hard = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name)
+      prediction_result_soft = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name)
+      prediction_result_hard = ArimaBasedPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name)
 
       term <- length(data)
       predictionTerm <- floor((1 - training_percentage) * term)
 
-      pmae_soft <- pmae(ArimaResult_soft$predictionData, tail(data, predictionTerm))
-      pmae_hard <- pmae(ArimaResult_hard$predictionData, tail(data, predictionTerm))
+      pmae_soft <- pmae(prediction_result_soft$predictionData, tail(data, predictionTerm))
+      pmae_hard <- pmae(prediction_result_hard$predictionData, tail(data, predictionTerm))
 
       output_data <- data.frame(
         pmae_soft = pmae_soft,
-        prediction_result_soft = ArimaResult_soft$predictionData,
-        execute_time_soft = ArimaResult_soft$execute_time$callback_msg,
+        prediction_result_soft = prediction_result_soft$predictionData,
+        execute_time_soft = prediction_result_soft$execute_time$callback_msg,
         pmae_hard = pmae_hard,
-        prediction_result_hard = ArimaResult_hard$predictionData,
-        execute_time_hard = ArimaResult_hard$execute_time$callback_msg
+        prediction_result_hard = prediction_result_hard$predictionData,
+        execute_time_hard = prediction_result_hard$execute_time$callback_msg
       )
 
-      print(paste0("pmae_soft: ", pmae_soft, ",実行時間: ", ArimaResult_soft$execute_time$callback_msg))
-      print(paste0("pmae_hard: ", pmae_hard, ",実行時間: ", ArimaResult_hard$execute_time$callback_msg))
+      print(paste0("pmae_soft: ", pmae_soft, ",実行時間: ", prediction_result_soft$execute_time$callback_msg))
+      print(paste0("pmae_hard: ", pmae_hard, ",実行時間: ", prediction_result_hard$execute_time$callback_msg))
       summary_data_name <- paste0(name, dataset_with_prediction_percentage, "_", "summary.txt")
 
       # 1つのファイルに書き出す
