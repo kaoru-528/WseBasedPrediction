@@ -56,7 +56,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       for(exp in seq(1, NUM_EXPERIMENTS, by = 1)) {
         print(paste("Experiment", exp, "of", NUM_EXPERIMENTS))
 
-        RnnResult = RnnBasedPrediction(data, dt, thresholdName, thresholdMode = "double", index, initThresholdvalue, training_percentage, name)
+        RnnResult = WaveletSlidingWindowPrediction(data, dt, thresholdName, thresholdMode = "double", index, initThresholdvalue, training_percentage, name, regression_model = "rnn")
         
         RnnResult_soft = RnnResult$soft
         RnnResult_hard = RnnResult$hard
