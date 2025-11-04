@@ -49,12 +49,14 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       pmae_hard_results <- numeric(NUM_EXPERIMENTS)
       execution_times_soft <- character(NUM_EXPERIMENTS)
       execution_times_hard <- character(NUM_EXPERIMENTS)
+      prediction_data_soft_all <- list()
+      prediction_data_hard_all <- list()
       
       # NUM_EXPERIMENTS回実行
       for(exp in seq(1, NUM_EXPERIMENTS, by = 1)) {
         print(paste("Experiment", exp, "of", NUM_EXPERIMENTS))
 
-        RnnResult = LstmBasedPrediction(data, dt, thresholdName, thresholdMode = "double", index, initThresholdvalue, training_percentage, name)
+        RnnResult = RnnBasedPrediction(data, dt, thresholdName, thresholdMode = "double", index, initThresholdvalue, training_percentage, name)
         
         RnnResult_soft = RnnResult$soft
         RnnResult_hard = RnnResult$hard
@@ -69,6 +71,8 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
         pmae_hard_results[exp] <- pmae_hard
         execution_times_soft[exp] <- RnnResult_soft$execute_time$callback_msg
         execution_times_hard[exp] <- RnnResult_hard$execute_time$callback_msg
+        prediction_data_soft_all[[exp]] <- RnnResult_soft$predictionData
+        prediction_data_hard_all[[exp]] <- RnnResult_hard$predictionData
       }
 
       # Soft thresholding の統計計算
@@ -77,6 +81,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       top_count <- max(1, ceiling(NUM_EXPERIMENTS * top_percentage / 100))
       
       best_pmae_soft <- min(pmae_soft_results)
+      best_index_soft <- which.min(pmae_soft_results)
       top_x_percent_mean_soft <- mean(sorted_pmae_soft[1:top_count])
       mean_all_soft <- mean(pmae_soft_results)
 
@@ -85,6 +90,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       sorted_pmae_hard <- pmae_hard_results[sorted_indices_hard]
       
       best_pmae_hard <- min(pmae_hard_results)
+      best_index_hard <- which.min(pmae_hard_results)
       top_x_percent_mean_hard <- mean(sorted_pmae_hard[1:top_count])
       mean_all_hard <- mean(pmae_hard_results)
 
@@ -131,6 +137,26 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       
       write.table(detailed_results_soft, file = detailed_filename_soft, sep = "\t", row.names = FALSE, col.names = TRUE)
       write.table(detailed_results_hard, file = detailed_filename_hard, sep = "\t", row.names = FALSE, col.names = TRUE)
+      
+      # 最も低いpmaeの予測結果を保存
+      best_prediction_soft_filename <- paste0(name, "best_prediction_result_soft.txt")
+      best_prediction_hard_filename <- paste0(name, "best_prediction_result_hard.txt")
+      
+      write.table(
+        data.frame(prediction_data = unlist(prediction_data_soft_all[[best_index_soft]])),
+        file = best_prediction_soft_filename,
+        row.names = FALSE,
+        col.names = FALSE,
+        sep = "\t"
+      )
+      
+      write.table(
+        data.frame(prediction_data = unlist(prediction_data_hard_all[[best_index_hard]])),
+        file = best_prediction_hard_filename,
+        row.names = FALSE,
+        col.names = FALSE,
+        sep = "\t"
+      )
     }
   }
 }
