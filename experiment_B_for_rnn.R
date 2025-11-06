@@ -42,6 +42,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       # 50回実行の結果を格納
       pmae_results_50runs <- numeric(NUM_EXPERIMENTS)
       execution_times_50runs <- character(NUM_EXPERIMENTS)
+      prediction_data_all <- list()
       
       for(l in seq(1, NUM_EXPERIMENTS, by = 1)) {
         wavelet_decomposition_prediciton_result <-  WaveletDecomposePrediction(
@@ -57,12 +58,16 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
 
         pmae_results_50runs[l] <- pmae_50run
         execution_times_50runs[l] <- wavelet_decomposition_prediciton_result$execute_time$callback_msg
+        prediction_data_all[[l]] <- wavelet_decomposition_prediciton_result$prediction_data
       }
 
       # PMEAを小さい順にソート
       sorted_indices <- order(pmae_results_50runs)
       sorted_pmae <- pmae_results_50runs[sorted_indices]
       sorted_times <- execution_times_50runs[sorted_indices]
+      
+      # 最も低いpmaeのインデックスを取得
+      best_index <- which.min(pmae_results_50runs)
 
       # 上位x%の平均を計算
       top_count <- max(1, ceiling(NUM_EXPERIMENTS * top_percentage / 100))
@@ -98,6 +103,16 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       
       stats_filename <- paste0(name, "statistics_summary_resolution_", k, ".txt")
       write.table(summary_stats, file = stats_filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+      
+      # 最も低いpmaeの予測結果を保存
+      best_prediction_filename <- paste0(name, "best_prediction_result.txt")
+      write.table(
+        data.frame(prediction_data = unlist(prediction_data_all[[best_index]])),
+        file = best_prediction_filename,
+        row.names = FALSE,
+        col.names = FALSE,
+        sep = "\t"
+      )
     }
     
     name <- paste0("./output/", dataset_name_list[[i]], "_", training_percentage_list[[j]], "/")
