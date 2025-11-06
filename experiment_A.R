@@ -55,8 +55,8 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
         dir.create(name, recursive = TRUE)
       }
       print(name)
-      prediction_result_soft = WaveletSlidingWindowPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name, regression_model = "arima")
-      prediction_result_hard = WaveletSlidingWindowPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name, regression_model = "arima")
+      prediction_result_soft = WaveletSlidingWindowPrediction(data, dt, thresholdName, thresholdMode = "soft", index, initThresholdvalue, training_percentage, name, regression_model = "periodic")
+      prediction_result_hard = WaveletSlidingWindowPrediction(data, dt, thresholdName, thresholdMode = "hard", index, initThresholdvalue, training_percentage, name, regression_model = "periodic")
 
       term <- length(data)
       predictionTerm <- floor((1 - training_percentage) * term)
@@ -79,6 +79,20 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
 
       # 1つのファイルに書き出す
       write.table(output_data, file = summary_data_name, row.names = FALSE, col.names = TRUE, quote = FALSE)
+      
+      # prediction_result_soft と prediction_result_hard を1つのファイルに保存
+      prediction_results_filename <- paste0(name, dataset_with_prediction_percentage, "_", "prediction_results.txt")
+      prediction_results_data <- data.frame(
+        soft_prediction = prediction_result_soft$predictionData,
+        hard_prediction = prediction_result_hard$predictionData
+      )
+      write.table(
+        prediction_results_data,
+        file = prediction_results_filename,
+        row.names = FALSE,
+        col.names = TRUE,
+        sep = "\t"
+      )
     }
   }
 }

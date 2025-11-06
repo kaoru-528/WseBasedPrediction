@@ -348,6 +348,13 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
             prediction_result[[j]] <- data.frame(mean = periodic_function(y, sorted_best_coe_list[[j]]$a[[1]], sorted_best_coe_list[[j]]$b[[1]], sorted_best_coe_list[[j]]$c[[1]], sorted_best_coe_list[[j]]$d[[1]]))
         }
         stopCluster(cl)
+        
+        # sorted_best_coe_listをRDataファイルに保存
+        if (!dir.exists(name)) {
+            dir.create(name, recursive = TRUE)
+        }
+        rdata_filename <- paste0(name, "sorted_best_coe_list.RData")
+        save(sorted_best_coe_list, file = rdata_filename, envir = environment())
     } else if (regression_model == "lstm") {
         prediction_result <- list()
         for (j in seq(1, resolution_level + 1)) {
