@@ -284,13 +284,6 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
     all_wavelet_coefficients <- all_coefficients$wavelet_coefficients
     all_scaling_coefficients <- all_coefficients$scaling_coefficients
 
-    for(i in seq(1, length((wavelet_coefficients)), by = 1)) {
-        len = length(wavelet_coefficients[[i]])
-        wavelet_coefficients[[i]] <- all_wavelet_coefficients[[i]][1:len]
-        scaling_coefficients[[i]] <- all_scaling_coefficients[[i]][1:len]
-    }
-
-
     # 学習データの作成 wavelet係数とスケーリング係数を結合
     trading_coefficients <- list()
     all_coefficients_data <- list()
@@ -303,6 +296,10 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
             all_coefficients_data[[i]] <- all_scaling_coefficients[[i]]
         }
     }
+
+    # 各解像度レベルでの係数をRDataファイルに保存
+    rdata_filename <- paste0(name, "resolution_level_", resolution_level, ".RData")
+    save(trading_coefficients, all_coefficients_data, file = rdata_filename, envir = environment())
 
     # 予測期間を作成
     coefficients_prediction_term_list <- list()

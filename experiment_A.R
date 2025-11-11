@@ -89,8 +89,8 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       write.table(
         prediction_results_data,
         file = prediction_results_filename,
-        row.names = FALSE,
         col.names = TRUE,
+        row.names = FALSE,
         sep = "\t"
       )
     }
