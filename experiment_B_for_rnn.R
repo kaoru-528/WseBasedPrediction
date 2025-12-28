@@ -6,24 +6,24 @@ library(forecast)
 library(ggplot2)
 library(keras)
 
-periodicBasedPrediction_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WseBasedPrediction.R")
-source(periodicBasedPrediction_Path)
-WaveletShrinkageEstimation_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WaveletShrinkageEstimation.R")
-source(WaveletShrinkageEstimation_Path)
-evaluator_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/Evaluator.R")
-source(evaluator_Path)
+periodic_based_prediction_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WseBasedPrediction.R")
+source(periodic_based_prediction_path)
+wavelet_shrinkage_estimation_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WaveletShrinkageEstimation.R")
+source(wavelet_shrinkage_estimation_path)
+evaluator_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/Evaluator.R")
+source(evaluator_path)
 
 dataset_name_list <- list("DS1", "DS2", "DS3", "DS4", "DS5", "DS6")
 training_percentage_list <- list(0.3, 0.5, 0.7)
-NUM_EXPERIMENTS <- 100
+num_experiments <- 100
 
 # 上位何%の平均を取るかを指定
 top_percentage <- 10  # 上位10%の平均を計算
 
 for (i in seq(1, length(dataset_name_list), by = 1)) {
   for (j in seq(1, length(training_percentage_list), by = 1)) {
-    dataPath <- paste0("/DS/", dataset_name_list[[i]], ".txt")
-    data <- loadData(dataPath)
+    data_path <- paste0("/DS/", dataset_name_list[[i]], ".txt")
+    data <- load_data(data_path)
     training_percentage <- training_percentage_list[[j]]
     training_data <- data[1:ceiling(length(data) * training_percentage)]
     max_resolution_level <- floor(log2(length(training_data))) + 1
@@ -40,12 +40,12 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       print(name)
       
       # 50回実行の結果を格納
-      pmae_results_50runs <- numeric(NUM_EXPERIMENTS)
-      execution_times_50runs <- character(NUM_EXPERIMENTS)
+      pmae_results_50runs <- numeric(num_experiments)
+      execution_times_50runs <- character(num_experiments)
       prediction_data_all <- list()
       
-      for(l in seq(1, NUM_EXPERIMENTS, by = 1)) {
-        wavelet_decomposition_prediciton_result <-  WaveletDecomposePrediction(
+      for(l in seq(1, num_experiments, by = 1)) {
+        wavelet_decomposition_prediciton_result <-  multi_resolution_wavelet_prediction(
             data,
             training_percentage,
             resolution_level,
@@ -53,8 +53,8 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
             regression_model
         )
 
-        predictionTerm <- floor((1 - training_percentage) * length(data))
-        pmae_50run <- pmae(wavelet_decomposition_prediciton_result$prediction_data, tail(data, predictionTerm))
+        prediction_term <- floor((1 - training_percentage) * length(data))
+        pmae_50run <- pmae(wavelet_decomposition_prediciton_result$prediction_data, tail(data, prediction_term))
 
         pmae_results_50runs[l] <- pmae_50run
         execution_times_50runs[l] <- wavelet_decomposition_prediciton_result$execute_time$callback_msg
@@ -70,7 +70,7 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
       best_index <- which.min(pmae_results_50runs)
 
       # 上位x%の平均を計算
-      top_count <- max(1, ceiling(NUM_EXPERIMENTS * top_percentage / 100))
+      top_count <- max(1, ceiling(num_experiments * top_percentage / 100))
       top_x_percent_mean <- mean(sorted_pmae[1:top_count])
 
       pmae_result_each_resolution[k, 1] <- k
@@ -80,13 +80,13 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
 
       # 50回の詳細結果をファイルに出力
       detailed_results <- data.frame(
-        run_number = 1:NUM_EXPERIMENTS,
+        run_number = 1:num_experiments,
         pmae = sorted_pmae,
         execution_time = sorted_times,
-        rank = 1:NUM_EXPERIMENTS
+        rank = 1:num_experiments
       )
 
-      detailed_filename <- paste0(name, "detailed_", NUM_EXPERIMENTS, "runs_resolution_", k, ".txt")
+      detailed_filename <- paste0(name, "detailed_", num_experiments, "runs_resolution_", k, ".txt")
       write.table(detailed_results, file = detailed_filename, sep = "\t", row.names = FALSE, col.names = TRUE)
 
       # 統計サマリーも出力
@@ -116,6 +116,6 @@ for (i in seq(1, length(dataset_name_list), by = 1)) {
     }
     
     name <- paste0("./output/", dataset_name_list[[i]], "_", training_percentage_list[[j]], "/")
-    write.table(pmae_result_each_resolution, file = paste0(name, dataset_with_prediction_percentage,"_summary.txt"), sep = "\t", row.names = FALSE, col.names = c("resolution", "best_pmae",paste0("top", top_percentage, "%_pmae_mean"), paste0("mean_all_",NUM_EXPERIMENTS,"runs")))
+    write.table(pmae_result_each_resolution, file = paste0(name, dataset_with_prediction_percentage,"_summary.txt"), sep = "\t", row.names = FALSE, col.names = c("resolution", "best_pmae",paste0("top", top_percentage, "%_pmae_mean"), paste0("mean_all_",num_experiments,"runs")))
   }
 }

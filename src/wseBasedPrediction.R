@@ -1,52 +1,54 @@
-WaveletShrinkageEstimation_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WaveletShrinkageEstimation.R")
-source(WaveletShrinkageEstimation_Path)
-Regression_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/RegressionModule.R")
-source(Regression_Path)
-CreateGraph_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/CreateGraph.R")
-source(CreateGraph_Path)
+wavelet_shrinkage_estimation_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WaveletShrinkageEstimation.R")
+source(wavelet_shrinkage_estimation_path)
+regression_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/RegressionModule.R")
+source(regression_path)
+create_graph_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/CreateGraph.R")
+source(create_graph_path)
 
 
-WaveletSlidingWindowPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage, name, regression_model) {
+sliding_window_wavelet_shrinkage_prediction <- function(data, dt, threshold_name, threshold_mode, index, init_threshold_value, training_percentage, name, regression_model, units = 4, epochs = 20) {
     if(regression_model == "periodic") {
-        PeriodicBasedPrediction(
+        periodic_based_prediction(
             data = data,
             dt = dt,
-            thresholdName = thresholdName,
-            thresholdMode = thresholdMode,
+            threshold_name = threshold_name,
+            threshold_mode = threshold_mode,
             index = index,
-            initThresholdvalue = initThresholdvalue,
+            init_threshold_value = init_threshold_value,
             training_percentage = training_percentage
         )
     } else if (regression_model == "arima") {
-       ArimaBasedPrediction(
+       arima_based_prediction(
         data = data,
         dt = dt,
-        thresholdName = thresholdName,
-        thresholdMode = thresholdMode,
+        threshold_name = threshold_name,
+        threshold_mode = threshold_mode,
         index = index,
-        initThresholdvalue = initThresholdvalue,
+        init_threshold_value = init_threshold_value,
         training_percentage = training_percentage,
         name = name
        )
     } else if (regression_model == "rnn") {
-        RnnBasedPrediction(
+        rnn_based_prediction(
         data = data,
         dt = dt,
-        thresholdName = thresholdName,
-        thresholdMode = thresholdMode,
+        threshold_name = threshold_name,
+        threshold_mode = threshold_mode,
         index = index,
-        initThresholdvalue = initThresholdvalue,
+        init_threshold_value = init_threshold_value,
         training_percentage = training_percentage,
-        name = name
+        name = name,
+        units = units,
+        epochs = epochs
         )
     } else if (regression_model == "quatratic") {
-        QuatraticBasedPrediction(
+        quatratic_based_prediction(
             data = data,
             dt = dt,
-            thresholdName = thresholdName,
-            thresholdMode = thresholdMode,
+            threshold_name = threshold_name,
+            threshold_mode = threshold_mode,
             index = index,
-            initThresholdvalue = initThresholdvalue,
+            init_threshold_value = init_threshold_value,
             training_percentage = training_percentage
         )
     }
@@ -55,46 +57,46 @@ WaveletSlidingWindowPrediction <- function(data, dt, thresholdName, thresholdMod
     }
 }
 # 周期関数を用いた予測
-PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage) {
+periodic_based_prediction <- function(data, dt, threshold_name, threshold_mode, index, init_threshold_value, training_percentage) {
     term <- length(data)
     # wseを実行する必要がないが、メソッドを切り出すのがめんどくさいのでcoefficientsを取得するために実行
-    wsed_data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
+    wsed_data <- wse(data = data, dt = dt, threshold_name = threshold_name, threshold_mode = threshold_mode, index = index, init_threshold_value = init_threshold_value)
     prediction_term <- floor((1 - training_percentage) * term)
     cs <- wsed_data$cs
     ds <- wsed_data$ds
-    coeLength <- length(cs)
+    coe_length <- length(cs)
     coe <- prepare_data(cs, ds, prediction_term)
 
     tic()
-    sorted_best_coe <- run_parallel_regression(coe, coeLength, prediction_term, "periodic")
+    sorted_best_coe <- run_parallel_regression(coe, coe_length, prediction_term, "periodic")
     time <- toc()
 
-    y <- c(1:coeLength)
-    C_4_1 <- periodic_function(y, sorted_best_coe[[1]]$a[[1]], sorted_best_coe[[1]]$b[[1]], sorted_best_coe[[1]]$c[[1]], sorted_best_coe[[1]]$d[[1]])
-    D_1_1 <- periodic_function(y, sorted_best_coe[[2]]$a[[1]], sorted_best_coe[[2]]$b[[1]], sorted_best_coe[[2]]$c[[1]], sorted_best_coe[[2]]$d[[1]])
-    D_1_2 <- periodic_function(y, sorted_best_coe[[3]]$a[[1]], sorted_best_coe[[3]]$b[[1]], sorted_best_coe[[3]]$c[[1]], sorted_best_coe[[3]]$d[[1]])
-    D_1_3 <- periodic_function(y, sorted_best_coe[[4]]$a[[1]], sorted_best_coe[[4]]$b[[1]], sorted_best_coe[[4]]$c[[1]], sorted_best_coe[[4]]$d[[1]])
-    D_1_4 <- periodic_function(y, sorted_best_coe[[5]]$a[[1]], sorted_best_coe[[5]]$b[[1]], sorted_best_coe[[5]]$c[[1]], sorted_best_coe[[5]]$d[[1]])
-    D_2_1 <- periodic_function(y, sorted_best_coe[[6]]$a[[1]], sorted_best_coe[[6]]$b[[1]], sorted_best_coe[[6]]$c[[1]], sorted_best_coe[[6]]$d[[1]])
-    D_2_2 <- periodic_function(y, sorted_best_coe[[7]]$a[[1]], sorted_best_coe[[7]]$b[[1]], sorted_best_coe[[7]]$c[[1]], sorted_best_coe[[7]]$d[[1]])
-    D_3_1 <- periodic_function(y, sorted_best_coe[[8]]$a[[1]], sorted_best_coe[[8]]$b[[1]], sorted_best_coe[[8]]$c[[1]], sorted_best_coe[[8]]$d[[1]])
+    y <- c(1:coe_length)
+    c_4_1 <- periodic_function(y, sorted_best_coe[[1]]$a[[1]], sorted_best_coe[[1]]$b[[1]], sorted_best_coe[[1]]$c[[1]], sorted_best_coe[[1]]$d[[1]])
+    d_1_1 <- periodic_function(y, sorted_best_coe[[2]]$a[[1]], sorted_best_coe[[2]]$b[[1]], sorted_best_coe[[2]]$c[[1]], sorted_best_coe[[2]]$d[[1]])
+    d_1_2 <- periodic_function(y, sorted_best_coe[[3]]$a[[1]], sorted_best_coe[[3]]$b[[1]], sorted_best_coe[[3]]$c[[1]], sorted_best_coe[[3]]$d[[1]])
+    d_1_3 <- periodic_function(y, sorted_best_coe[[4]]$a[[1]], sorted_best_coe[[4]]$b[[1]], sorted_best_coe[[4]]$c[[1]], sorted_best_coe[[4]]$d[[1]])
+    d_1_4 <- periodic_function(y, sorted_best_coe[[5]]$a[[1]], sorted_best_coe[[5]]$b[[1]], sorted_best_coe[[5]]$c[[1]], sorted_best_coe[[5]]$d[[1]])
+    d_2_1 <- periodic_function(y, sorted_best_coe[[6]]$a[[1]], sorted_best_coe[[6]]$b[[1]], sorted_best_coe[[6]]$c[[1]], sorted_best_coe[[6]]$d[[1]])
+    d_2_2 <- periodic_function(y, sorted_best_coe[[7]]$a[[1]], sorted_best_coe[[7]]$b[[1]], sorted_best_coe[[7]]$c[[1]], sorted_best_coe[[7]]$d[[1]])
+    d_3_1 <- periodic_function(y, sorted_best_coe[[8]]$a[[1]], sorted_best_coe[[8]]$b[[1]], sorted_best_coe[[8]]$c[[1]], sorted_best_coe[[8]]$d[[1]])
 
-    for (k in seq(coeLength - prediction_term + 1, coeLength, by = 1)) {
-        Cs[[k]][[4]][1] <- C_4_1[k]
+    for (k in seq(coe_length - prediction_term + 1, coe_length, by = 1)) {
+        cs[[k]][[4]][1] <- c_4_1[k]
 
-        Ds[[k]][[2]][1] <- D_1_1[[k]]
-        Ds[[k]][[2]][2] <- D_1_2[[k]]
-        Ds[[k]][[2]][3] <- D_1_3[[k]]
-        Ds[[k]][[2]][4] <- D_1_4[[k]]
-        Ds[[k]][[3]][1] <- D_2_1[[k]]
-        Ds[[k]][[3]][2] <- D_2_2[[k]]
-        Ds[[k]][[4]][1] <- D_3_1[[k]]
+        ds[[k]][[2]][1] <- d_1_1[[k]]
+        ds[[k]][[2]][2] <- d_1_2[[k]]
+        ds[[k]][[2]][3] <- d_1_3[[k]]
+        ds[[k]][[2]][4] <- d_1_4[[k]]
+        ds[[k]][[3]][1] <- d_2_1[[k]]
+        ds[[k]][[3]][2] <- d_2_2[[k]]
+        ds[[k]][[4]][1] <- d_3_1[[k]]
     }
 
-    denoised_ds <- ThresholdForGroups(Ds = Ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
-    i_groups <- inverseHaarWaveletTransformForGroups(Cs, denoised_ds)
+    denoised_ds <- threshold_for_groups(ds = ds, threshold_mode = threshold_mode, threshold_name = threshold_name, dt = dt, groups = 0, init_threshold_value = 1)
+    i_groups <- inverse_haar_wavelet_transform_for_groups(cs, denoised_ds)
     i_groups <- lapply(i_groups, function(x) x * 8^0.5)
-    all_data <- movingAverage(i_groups, term)
+    all_data <- moving_average(i_groups, term)
     all_data <- apply_inverse_transform(all_data, dt, var)
     all_data <- pmax(all_data, 0)
 
@@ -103,163 +105,163 @@ PeriodicBasedPrediction <- function(data, dt, thresholdName, thresholdMode, inde
         tmp_best_coe <- data.frame(a = sorted_best_coe[[m]]$a[[1]], b = sorted_best_coe[[m]]$b[[1]], c = sorted_best_coe[[m]]$c[[1]], d = sorted_best_coe[[m]]$d[[1]])
         best_coe <- rbind(best_coe, tmp_best_coe)
     }
-    predictionData <- list(predictionData = tail(all_data, prediction_term), regressionCoefficient = best_coe)
-    return(predictionData)
+    prediction_data <- list(prediction_data = tail(all_data, prediction_term), regression_coefficient = best_coe)
+    return(prediction_data)
 }
 
 # ARIMAを用いた予測
-ArimaBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage, name) {
+arima_based_prediction <- function(data, dt, threshold_name, threshold_mode, index, init_threshold_value, training_percentage, name) {
     term <- length(data)
-    wsed_data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue, var = 1)
+    wsed_data <- wse(data = data, dt = dt, threshold_name = threshold_name, threshold_mode = threshold_mode, index = index, init_threshold_value = init_threshold_value, var = 1)
     prediction_term <- floor((1 - training_percentage) * term)
     cs <- wsed_data$cs
     ds <- wsed_data$ds
-    coeLength <- length(cs)
+    coe_length <- length(cs)
     all_coefficients_data <- get_all_coefficients_data(cs, ds)
     coefficients_data_for_training <- prepare_data(cs, ds, prediction_term)
 
     tic()
     prediction_result <- run_parallel_arima_regression(coefficients_data_for_training, prediction_term)
     time <- toc()
-    CreateGraphForArimaBasedPrediction(prediction_result, all_coefficients_data, coeLength, prediction_term, name)
+    create_graph_for_arima_based_prediction(prediction_result, all_coefficients_data, coe_length, prediction_term, name)
 
-    y <- c(1:coeLength)
-    C_4_1 <- c(unlist(coefficients_data_for_training[[1]]), prediction_result[[1]]$mean)
-    D_1_1 <- c(unlist(coefficients_data_for_training[[2]]), prediction_result[[2]]$mean)
-    D_1_2 <- c(unlist(coefficients_data_for_training[[3]]), prediction_result[[3]]$mean)
-    D_1_3 <- c(unlist(coefficients_data_for_training[[4]]), prediction_result[[4]]$mean)
-    D_1_4 <- c(unlist(coefficients_data_for_training[[5]]), prediction_result[[5]]$mean)
-    D_2_1 <- c(unlist(coefficients_data_for_training[[6]]), prediction_result[[6]]$mean)
-    D_2_2 <- c(unlist(coefficients_data_for_training[[7]]), prediction_result[[7]]$mean)
-    D_3_1 <- c(unlist(coefficients_data_for_training[[8]]), prediction_result[[8]]$mean)
+    y <- c(1:coe_length)
+    c_4_1 <- c(unlist(coefficients_data_for_training[[1]]), prediction_result[[1]]$mean)
+    d_1_1 <- c(unlist(coefficients_data_for_training[[2]]), prediction_result[[2]]$mean)
+    d_1_2 <- c(unlist(coefficients_data_for_training[[3]]), prediction_result[[3]]$mean)
+    d_1_3 <- c(unlist(coefficients_data_for_training[[4]]), prediction_result[[4]]$mean)
+    d_1_4 <- c(unlist(coefficients_data_for_training[[5]]), prediction_result[[5]]$mean)
+    d_2_1 <- c(unlist(coefficients_data_for_training[[6]]), prediction_result[[6]]$mean)
+    d_2_2 <- c(unlist(coefficients_data_for_training[[7]]), prediction_result[[7]]$mean)
+    d_3_1 <- c(unlist(coefficients_data_for_training[[8]]), prediction_result[[8]]$mean)
 
-    for (k in seq(coeLength - prediction_term + 1, coeLength, by = 1)) {
-        cs[[k]][[4]][1] <- C_4_1[k]
+    for (k in seq(coe_length - prediction_term + 1, coe_length, by = 1)) {
+        cs[[k]][[4]][1] <- c_4_1[k]
 
-        ds[[k]][[2]][1] <- D_1_1[[k]]
-        ds[[k]][[2]][2] <- D_1_2[[k]]
-        ds[[k]][[2]][3] <- D_1_3[[k]]
-        ds[[k]][[2]][4] <- D_1_4[[k]]
-        ds[[k]][[3]][1] <- D_2_1[[k]]
-        ds[[k]][[3]][2] <- D_2_2[[k]]
-        ds[[k]][[4]][1] <- D_3_1[[k]]
+        ds[[k]][[2]][1] <- d_1_1[[k]]
+        ds[[k]][[2]][2] <- d_1_2[[k]]
+        ds[[k]][[2]][3] <- d_1_3[[k]]
+        ds[[k]][[2]][4] <- d_1_4[[k]]
+        ds[[k]][[3]][1] <- d_2_1[[k]]
+        ds[[k]][[3]][2] <- d_2_2[[k]]
+        ds[[k]][[4]][1] <- d_3_1[[k]]
     }
 
 
-    denoised_ds <- ThresholdForGroups(Ds = ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
-    i_groups <- inverseHaarWaveletTransformForGroups(cs, denoised_ds)
+    denoised_ds <- threshold_for_groups(ds = ds, threshold_mode = threshold_mode, threshold_name = threshold_name, dt = dt, groups = 0, init_threshold_value = 1)
+    i_groups <- inverse_haar_wavelet_transform_for_groups(cs, denoised_ds)
     i_groups <- lapply(i_groups, function(x) x * 8^0.5)
-    all_data <- movingAverage(i_groups, term)
+    all_data <- moving_average(i_groups, term)
     all_data <- apply_inverse_transform(all_data, dt, var)
     all_data <- pmax(all_data, 0)
 
-    PredictionData <- list(predictionData = tail(all_data, prediction_term), execute_time = time)
-    return(PredictionData)
+    prediction_data <- list(prediction_data = tail(all_data, prediction_term), execute_time = time)
+    return(prediction_data)
 }
 
-RnnBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage, name) {
+rnn_based_prediction <- function(data, dt, threshold_name, threshold_mode, index, init_threshold_value, training_percentage, name, units = 4, epochs = 20) {
     term <- length(data)
-    wsed_data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
+    wsed_data <- wse(data = data, dt = dt, threshold_name = threshold_name, threshold_mode = threshold_mode, index = index, init_threshold_value = init_threshold_value)
     prediction_term <- floor((1 - training_percentage) * term)
     cs <- wsed_data$cs
     ds <- wsed_data$ds
-    coeLength <- length(cs)
+    coe_length <- length(cs)
     all_coefficients_data <- get_all_coefficients_data(cs, ds)
     coefficients_data_for_training <- prepare_data(cs, ds, prediction_term)
     tic()
     prediction_result <- list()
     for (j in seq(1, 8, by = 1)) {
         training_data <- unlist(coefficients_data_for_training[[j]])
-        prediction_result_each_resolution_level <- run_rnn_regression(training_data, prediction_term)
+        prediction_result_each_resolution_level <- run_rnn_regression(training_data, prediction_term, units, epochs)
         prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
     }
     time <- toc()
-    # CreateGraphForArimaBasedPrediction(prediction_result, all_coefficients_data, coeLength, prediction_term, name)
-    y <- c(1:coeLength)
-    C_4_1 <- c(unlist(coefficients_data_for_training[[1]]), prediction_result[[1]]$mean)
-    D_1_1 <- c(unlist(coefficients_data_for_training[[2]]), prediction_result[[2]]$mean)
-    D_1_2 <- c(unlist(coefficients_data_for_training[[3]]), prediction_result[[3]]$mean)
-    D_1_3 <- c(unlist(coefficients_data_for_training[[4]]), prediction_result[[4]]$mean)
-    D_1_4 <- c(unlist(coefficients_data_for_training[[5]]), prediction_result[[5]]$mean)
-    D_2_1 <- c(unlist(coefficients_data_for_training[[6]]), prediction_result[[6]]$mean)
-    D_2_2 <- c(unlist(coefficients_data_for_training[[7]]), prediction_result[[7]]$mean)
-    D_3_1 <- c(unlist(coefficients_data_for_training[[8]]), prediction_result[[8]]$mean)
-    for (k in seq(coeLength - prediction_term + 1, coeLength, by = 1)) {
-        cs[[k]][[4]][1] <- C_4_1[k]
+    # create_graph_for_arima_based_prediction(prediction_result, all_coefficients_data, coe_length, prediction_term, name)
+    y <- c(1:coe_length)
+    c_4_1 <- c(unlist(coefficients_data_for_training[[1]]), prediction_result[[1]]$mean)
+    d_1_1 <- c(unlist(coefficients_data_for_training[[2]]), prediction_result[[2]]$mean)
+    d_1_2 <- c(unlist(coefficients_data_for_training[[3]]), prediction_result[[3]]$mean)
+    d_1_3 <- c(unlist(coefficients_data_for_training[[4]]), prediction_result[[4]]$mean)
+    d_1_4 <- c(unlist(coefficients_data_for_training[[5]]), prediction_result[[5]]$mean)
+    d_2_1 <- c(unlist(coefficients_data_for_training[[6]]), prediction_result[[6]]$mean)
+    d_2_2 <- c(unlist(coefficients_data_for_training[[7]]), prediction_result[[7]]$mean)
+    d_3_1 <- c(unlist(coefficients_data_for_training[[8]]), prediction_result[[8]]$mean)
+    for (k in seq(coe_length - prediction_term + 1, coe_length, by = 1)) {
+        cs[[k]][[4]][1] <- c_4_1[k]
 
-        ds[[k]][[2]][1] <- D_1_1[[k]]
-        ds[[k]][[2]][2] <- D_1_2[[k]]
-        ds[[k]][[2]][3] <- D_1_3[[k]]
-        ds[[k]][[2]][4] <- D_1_4[[k]]
-        ds[[k]][[3]][1] <- D_2_1[[k]]
-        ds[[k]][[3]][2] <- D_2_2[[k]]
-        ds[[k]][[4]][1] <- D_3_1[[k]]
+        ds[[k]][[2]][1] <- d_1_1[[k]]
+        ds[[k]][[2]][2] <- d_1_2[[k]]
+        ds[[k]][[2]][3] <- d_1_3[[k]]
+        ds[[k]][[2]][4] <- d_1_4[[k]]
+        ds[[k]][[3]][1] <- d_2_1[[k]]
+        ds[[k]][[3]][2] <- d_2_2[[k]]
+        ds[[k]][[4]][1] <- d_3_1[[k]]
     }
-    if (thresholdMode == "soft" || thresholdMode == "hard") {
-        denoised_ds <- ThresholdForGroups(Ds = ds, thresholdMode = thresholdMode, thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
-        i_groups <- inverseHaarWaveletTransformForGroups(cs, denoised_ds)
+    if (threshold_mode == "soft" || threshold_mode == "hard") {
+        denoised_ds <- threshold_for_groups(ds = ds, threshold_mode = threshold_mode, threshold_name = threshold_name, dt = dt, groups = 0, init_threshold_value = 1)
+        i_groups <- inverse_haar_wavelet_transform_for_groups(cs, denoised_ds)
         i_groups <- lapply(i_groups, function(x) x * 8^0.5)
-        all_data <- movingAverage(i_groups, term)
+        all_data <- moving_average(i_groups, term)
         all_data <- apply_inverse_transform(all_data, dt, var = 1)
         all_data <- pmax(all_data, 0)
-        PredictionData <- list(predictionData = tail(all_data, prediction_term), execute_time = time)
+        prediction_data <- list(prediction_data = tail(all_data, prediction_term), execute_time = time)
     } else {
-        denoised_ds_soft <- ThresholdForGroups(Ds = ds, thresholdMode = "soft", thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
-        denoised_ds_hard <- ThresholdForGroups(Ds = ds, thresholdMode = "hard", thresholdName = thresholdName, dt = dt, groups = 0, initThresholdvalue = 1)
-        i_groups_soft <- inverseHaarWaveletTransformForGroups(cs, denoised_ds_soft)
+        denoised_ds_soft <- threshold_for_groups(ds = ds, threshold_mode = "soft", threshold_name = threshold_name, dt = dt, groups = 0, init_threshold_value = 1)
+        denoised_ds_hard <- threshold_for_groups(ds = ds, threshold_mode = "hard", threshold_name = threshold_name, dt = dt, groups = 0, init_threshold_value = 1)
+        i_groups_soft <- inverse_haar_wavelet_transform_for_groups(cs, denoised_ds_soft)
         i_groups_soft <- lapply(i_groups_soft, function(x) x * 8^0.5)
-        all_data_soft <- movingAverage(i_groups_soft, term)
+        all_data_soft <- moving_average(i_groups_soft, term)
         all_data_soft <- apply_inverse_transform(all_data_soft, dt, var = 1)
         all_data_soft <- pmax(all_data_soft, 0)
-        i_groups_hard <- inverseHaarWaveletTransformForGroups(cs, denoised_ds_hard)
+        i_groups_hard <- inverse_haar_wavelet_transform_for_groups(cs, denoised_ds_hard)
         i_groups_hard <- lapply(i_groups_hard, function(x) x * 8^0.5)
-        all_data_hard <- movingAverage(i_groups_hard, term)
+        all_data_hard <- moving_average(i_groups_hard, term)
         all_data_hard <- apply_inverse_transform(all_data_hard, dt, var = 1)
         all_data_hard <- pmax(all_data_hard, 0)
-        PredictionData <- list(soft = list( predictionData = tail(all_data_soft, prediction_term), execute_time = time), hard = list( predictionData = tail(all_data_hard, prediction_term), execute_time = time))
+        prediction_data <- list(soft = list( prediction_data = tail(all_data_soft, prediction_term), execute_time = time), hard = list( prediction_data = tail(all_data_hard, prediction_term), execute_time = time))
     }
-    return(PredictionData)
+    return(prediction_data)
 }
 
 # 二次関数を用いた予測
-QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, index, initThresholdvalue, training_percentage) {
+quatratic_based_prediction <- function(data, dt, threshold_name, threshold_mode, index, init_threshold_value, training_percentage) {
     term <- length(data)
-    data <- wse(data = data, dt = dt, thresholdName = thresholdName, thresholdMode = thresholdMode, index = index, initThresholdvalue = initThresholdvalue)
+    data <- wse(data = data, dt = dt, threshold_name = threshold_name, threshold_mode = threshold_mode, index = index, init_threshold_value = init_threshold_value)
     prediction_term <- floor((1 - training_percentage) * term)
-    Cs <- data$cs
-    Ds <- data$ds
-    dDs <- data$denoisedDs
-    coeLength <- length(Cs)
+    cs <- data$cs
+    ds <- data$ds
+    d_ds <- data$denoised_ds
+    coe_length <- length(cs)
     coe <- prepare_data(data$cs, data$ds, prediction_term)
 
     tic()
-    sorted_best_coe <- run_parallel_regression(coe, coeLength, prediction_term, "quadratic")
+    sorted_best_coe <- run_parallel_regression(coe, coe_length, prediction_term, "quadratic")
     time <- toc()
 
     y <- c(1:(term%/%8 + 1))
-    C_4_1 <- quadratic_function(y, sorted_best_coe[[1]]$a[[1]], sorted_best_coe[[1]]$b[[1]], sorted_best_coe[[1]]$c[[1]])
-    D_1_1 <- quadratic_function(y, sorted_best_coe[[2]]$a[[1]], sorted_best_coe[[2]]$b[[1]], sorted_best_coe[[2]]$c[[1]])
-    D_1_2 <- quadratic_function(y, sorted_best_coe[[3]]$a[[1]], sorted_best_coe[[3]]$b[[1]], sorted_best_coe[[3]]$c[[1]])
-    D_1_3 <- quadratic_function(y, sorted_best_coe[[4]]$a[[1]], sorted_best_coe[[4]]$b[[1]], sorted_best_coe[[4]]$c[[1]])
-    D_1_4 <- quadratic_function(y, sorted_best_coe[[5]]$a[[1]], sorted_best_coe[[5]]$b[[1]], sorted_best_coe[[5]]$c[[1]])
-    D_2_1 <- quadratic_function(y, sorted_best_coe[[6]]$a[[1]], sorted_best_coe[[6]]$b[[1]], sorted_best_coe[[6]]$c[[1]])
-    D_2_2 <- quadratic_function(y, sorted_best_coe[[7]]$a[[1]], sorted_best_coe[[7]]$b[[1]], sorted_best_coe[[7]]$c[[1]])
-    D_3_1 <- quadratic_function(y, sorted_best_coe[[8]]$a[[1]], sorted_best_coe[[8]]$b[[1]], sorted_best_coe[[8]]$c[[1]])
+    c_4_1 <- quadratic_function(y, sorted_best_coe[[1]]$a[[1]], sorted_best_coe[[1]]$b[[1]], sorted_best_coe[[1]]$c[[1]])
+    d_1_1 <- quadratic_function(y, sorted_best_coe[[2]]$a[[1]], sorted_best_coe[[2]]$b[[1]], sorted_best_coe[[2]]$c[[1]])
+    d_1_2 <- quadratic_function(y, sorted_best_coe[[3]]$a[[1]], sorted_best_coe[[3]]$b[[1]], sorted_best_coe[[3]]$c[[1]])
+    d_1_3 <- quadratic_function(y, sorted_best_coe[[4]]$a[[1]], sorted_best_coe[[4]]$b[[1]], sorted_best_coe[[4]]$c[[1]])
+    d_1_4 <- quadratic_function(y, sorted_best_coe[[5]]$a[[1]], sorted_best_coe[[5]]$b[[1]], sorted_best_coe[[5]]$c[[1]])
+    d_2_1 <- quadratic_function(y, sorted_best_coe[[6]]$a[[1]], sorted_best_coe[[6]]$b[[1]], sorted_best_coe[[6]]$c[[1]])
+    d_2_2 <- quadratic_function(y, sorted_best_coe[[7]]$a[[1]], sorted_best_coe[[7]]$b[[1]], sorted_best_coe[[7]]$c[[1]])
+    d_3_1 <- quadratic_function(y, sorted_best_coe[[8]]$a[[1]], sorted_best_coe[[8]]$b[[1]], sorted_best_coe[[8]]$c[[1]])
 
     for (k in seq(1, term%/%8 + 1, by = 1)) {
-        Cs[[k]][[4]][1] <- C_4_1[k]
+        cs[[k]][[4]][1] <- c_4_1[k]
 
-        dDs[[k]][[2]][1] <- D_1_1[[k]]
-        dDs[[k]][[2]][2] <- D_1_2[[k]]
-        dDs[[k]][[2]][3] <- D_1_3[[k]]
-        dDs[[k]][[2]][4] <- D_1_4[[k]]
-        dDs[[k]][[3]][1] <- D_2_1[[k]]
-        dDs[[k]][[3]][2] <- D_2_2[[k]]
-        dDs[[k]][[4]][1] <- D_3_1[[k]]
+        d_ds[[k]][[2]][1] <- d_1_1[[k]]
+        d_ds[[k]][[2]][2] <- d_1_2[[k]]
+        d_ds[[k]][[2]][3] <- d_1_3[[k]]
+        d_ds[[k]][[2]][4] <- d_1_4[[k]]
+        d_ds[[k]][[3]][1] <- d_2_1[[k]]
+        d_ds[[k]][[3]][2] <- d_2_2[[k]]
+        d_ds[[k]][[4]][1] <- d_3_1[[k]]
     }
-    i_groups <- inverseHaarWaveletTransformForGroups(Cs, dDs)
+    i_groups <- inverse_haar_wavelet_transform_for_groups(cs, d_ds)
     i_groups <- lapply(i_groups, function(x) x * 8^0.5)
-    all_data <- movingAverage(i_groups, term)
+    all_data <- moving_average(i_groups, term)
     all_data <- apply_inverse_transform(all_data, dt, var = 1)
     all_data <- pmax(all_data, 0)
 
@@ -268,11 +270,11 @@ QuatraticBasedPrediction <- function(data, dt, thresholdName, thresholdMode, ind
         tmp_best_coe <- data.frame(a = sorted_best_coe[[m]]$a[[1]], b = sorted_best_coe[[m]]$b[[1]], c = sorted_best_coe[[m]]$c[[1]])
         best_coe <- rbind(best_coe, tmp_best_coe)
     }
-    predictionData <- list(predictionData = tail(all_data, prediction_term), regressionCoefficient = best_coe, execute_time = time)
-    return(predictionData)
+    prediction_data <- list(prediction_data = tail(all_data, prediction_term), regression_coefficient = best_coe, execute_time = time)
+    return(prediction_data)
 }
 
-WaveletDecomposePrediction <- function(data, training_percentage, resolution_level, name, regression_model) {
+multi_resolution_wavelet_prediction <- function(data, training_percentage, resolution_level, name, regression_model, units = 4, epochs = 20) {
     training_data <- data[1:ceiling(length(data) * training_percentage)] / sqrt(2 ** resolution_level)
     prediction_term <- floor((1 - training_percentage) * length(data))
 
@@ -362,7 +364,7 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
                 prediction_result[[j]] <- data.frame(mean = rep(mean(training_data), coefficients_prediction_term_list[[j]]))
             } else {
                 # LSTMモデルの適用
-                prediction_result_each_resolution_level <- run_lstm_regression(training_data, coefficients_prediction_term_list[[j]])
+                prediction_result_each_resolution_level <- run_lstm_regression(training_data, coefficients_prediction_term_list[[j]], units, epochs)
                 prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
             }
         }
@@ -376,7 +378,7 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
                 prediction_result[[j]] <- data.frame(mean = rep(mean(training_data), coefficients_prediction_term_list[[j]]))
             } else {
                 # RNNモデルの適用
-                prediction_result_each_resolution_level <- run_rnn_regression(training_data, coefficients_prediction_term_list[[j]])
+                prediction_result_each_resolution_level <- run_rnn_regression(training_data, coefficients_prediction_term_list[[j]], units, epochs)
                 prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
             }
         }
@@ -395,7 +397,7 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
 
     time <- toc()
 
-    # CreateGraphForWaveleDecomposePrediction(prediction_result, all_coefficients_data, length(data), prediction_term, name, resolution_level)
+    # create_graph_for_wavele_decompose_prediction(prediction_result, all_coefficients_data, length(data), prediction_term, name, resolution_level)
 
     prediction_wavelet <- list()
     prediction_scaling <- list()
@@ -426,49 +428,49 @@ WaveletDecomposePrediction <- function(data, training_percentage, resolution_lev
 
 # private
 
-get_all_coefficients_data <- function(Cs, Ds) {
-    tmp_Cs_4_1 <- list()
-    tmp_Ds <- vector("list", 7)  # D[1][1] ~ D[3][1]
+get_all_coefficients_data <- function(cs, ds) {
+    tmp_cs_4_1 <- list()
+    tmp_ds <- vector("list", 7)  # D[1][1] ~ D[3][1]
 
-    for (j in seq(1, length(Ds), by = 1)) {
-        tmp_Cs_4_1 <- c(tmp_Cs_4_1, Cs[[j]][[4]][1])
+    for (j in seq(1, length(ds), by = 1)) {
+        tmp_cs_4_1 <- c(tmp_cs_4_1, cs[[j]][[4]][1])
         for (i in 1:7) {
-            tmp_Ds[[i]] <- c(tmp_Ds[[i]], Ds[[j]][[ceiling(i/4)]][(i - 1)%%4 + 1])
+            tmp_ds[[i]] <- c(tmp_ds[[i]], ds[[j]][[ceiling(i/4)]][(i - 1)%%4 + 1])
         }
     }
 
-    coe <- c(list(tmp_Cs_4_1), tmp_Ds)
+    coe <- c(list(tmp_cs_4_1), tmp_ds)
     return(coe)
 }
 
-prepare_data <- function(Cs, Ds, prediction_term) {
-    tmp_Cs_4_1 <- list()
-    tmp_Ds <- vector("list", 7)  # D[1][1] ~ D[3][1]
+prepare_data <- function(cs, ds, prediction_term) {
+    tmp_cs_4_1 <- list()
+    tmp_ds <- vector("list", 7)  # D[1][1] ~ D[3][1]
 
-    for (j in seq(1, length(Ds) - prediction_term, by = 1)) {
-        tmp_Cs_4_1 <- c(tmp_Cs_4_1, Cs[[j]][[4]][1])
+    for (j in seq(1, length(ds) - prediction_term, by = 1)) {
+        tmp_cs_4_1 <- c(tmp_cs_4_1, cs[[j]][[4]][1])
         for (i in 1:7) {
-            tmp_Ds[[i]] <- c(tmp_Ds[[i]], Ds[[j]][[ceiling(i/4)]][(i - 1)%%4 + 1])
+            tmp_ds[[i]] <- c(tmp_ds[[i]], ds[[j]][[ceiling(i/4)]][(i - 1)%%4 + 1])
         }
     }
 
-    coe <- c(list(tmp_Cs_4_1), tmp_Ds)
+    coe <- c(list(tmp_cs_4_1), tmp_ds)
     return(coe)
 }
 
 apply_inverse_transform <- function(all_data, dt, var) {
     if (dt == "A1") {
-        return(inverseAnscombeTransformFromGroup(all_data, var))
+        return(inverse_anscombe_transform_from_group(all_data, var))
     } else if (dt == "A2") {
-        return(inverseAnscombeTransform2FromGroup(all_data, var))
+        return(inverse_anscombe_transform2_from_group(all_data, var))
     } else if (dt == "A3") {
-        return(inverseAnscombeTransform3FromGroup(all_data, var))
+        return(inverse_anscombe_transform3_from_group(all_data, var))
     } else if (dt == "B1") {
-        return(inverseBartlettTransformFromGroup(all_data, var))
+        return(inverse_bartlett_transform_from_group(all_data, var))
     } else if (dt == "B2") {
-        return(inverseBartlettTransform2FromGroup(all_data, var))
+        return(inverse_bartlett_transform2_from_group(all_data, var))
     } else if (dt == "Fr") {
-        return(inverseFreemanTransformFromGroup(all_data, var))
+        return(inverse_freeman_transform_from_group(all_data, var))
     } else {
         return(all_data)
     }
@@ -502,4 +504,3 @@ calculate_wavelet_and_scaling_coefficients <- function(training_data, resolution
 
     return(list(wavelet_coefficients = wavelet_coefficients, scaling_coefficients = scaling_coefficients))
 }
-FALSE

@@ -1,229 +1,228 @@
 # Load wavelet conversion module
-WaveletTransform_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/waveletTransform.R")
-source(WaveletTransform_Path)
+wavelet_transform_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WaveletTransform.R")
+source(wavelet_transform_path)
 # Load data conversion module
-DT_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/dataTransform.R")
-source(DT_Path)
+dt_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/DataTransform.R")
+source(dt_path)
 # Load Threshold Module
-Threshold_Path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/threshold.R")
-source(Threshold_Path)
+threshold_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/Threshold.R")
+source(threshold_path)
 
 # Hal wavelet estimation without data transformation
-wse <- function(data, dt, thresholdName, thresholdMode, var = 1, index, initThresholdvalue) {
-    if (dt == "none" && thresholdName != "ldt") {
-        print("Please chack the parameter. If you want to use dt=none, please set thresholdName=ldt.")
-    } else if (dt != "none" && thresholdName == "ldt") {
-        print("Please chack the parameter. If you want to use thresholdName=ldt, please set dt=none.")
+wse <- function(data, dt, threshold_name, threshold_mode, var = 1, index, init_threshold_value) {
+    if (dt == "none" && threshold_name != "ldt") {
+        print("Please chack the parameter. If you want to use dt=none, please set threshold_name=ldt.")
+    } else if (dt != "none" && threshold_name == "ldt") {
+        print("Please chack the parameter. If you want to use threshold_name=ldt, please set dt=none.")
     } else {
-        groupLength <- 2^index
+        group_length <- 2^index
         # Get data length
-        dataLength <- length(data)
-        if (groupLength >= getGroupLength(dataLength)) {
+        data_length <- length(data)
+        if (group_length >= get_group_length(data_length)) {
             # Get subdata length
-            groupLength <- getGroupLength(dataLength)
+            group_length <- get_group_length(data_length)
         }
 
         # Cut the original data into a number of sub-data of length 2^J
-        groups <- getGroups(data, groupLength)
+        groups <- get_groups(data, group_length)
 
         if (dt == "Fi") {
             # Transform the sub-data into Gaussian data by Fisz transformation
-            Cs1 <- getScalingCoefficientsFromGroups(groups)
-            Ds1 <- getWaveletCoefficientsFromGroups(Cs1)
-            Fi1 <- FiszTransformFromGroups(Cs1, Ds1, var)
-            fiszGroups <- inverseHaarWaveletTransformForGroups(Cs1, Fi1)
+            cs1 <- get_scaling_coefficients_from_groups(groups)
+            ds1 <- get_wavelet_coefficients_from_groups(cs1)
+            fi1 <- fisz_transform_from_groups(cs1, ds1, var)
+            fisz_groups <- inverse_haar_wavelet_transform_for_groups(cs1, fi1)
 
-            fiszGroups <- lapply(fiszGroups, function(x) x/groupLength^0.5)
+            fisz_groups <- lapply(fisz_groups, function(x) x/group_length^0.5)
 
             # Calculate c
-            Cs2 <- getScalingCoefficientsFromGroups(fiszGroups)
+            cs2 <- get_scaling_coefficients_from_groups(fisz_groups)
             # Calculate d
-            Ds2 <- getWaveletCoefficientsFromGroups(Cs2)
+            ds2 <- get_wavelet_coefficients_from_groups(cs2)
 
-            # Noise reduction of wavelet coefficients using thresholdMode noise reduction rule, thresholdName threshold
-            Denoise_Ds2 <- ThresholdForGroups(Ds2, thresholdMode, thresholdName)
+            # Noise reduction of wavelet coefficients using threshold_mode noise reduction rule, threshold_name threshold
+            denoise_ds2 <- threshold_for_groups(ds2, threshold_mode, threshold_name)
 
             # Perform inverse Fisz data conversion
-            f_igroups <- inverseHaarWaveletTransformForGroups(Cs2, Denoise_Ds2)
-            Cs3 <- getScalingCoefficientsFromGroups(f_igroups)
-            Fs2 <- getWaveletCoefficientsFromGroups(Cs3)
-            CDs <- inverseFiszTransformFromGroups(Cs3, Fs2, var)
-            Cs4 <- CDs[[1]]
-            Ds3 <- CDs[[2]]
+            f_igroups <- inverse_haar_wavelet_transform_for_groups(cs2, denoise_ds2)
+            cs3 <- get_scaling_coefficients_from_groups(f_igroups)
+            fs2 <- get_wavelet_coefficients_from_groups(cs3)
+            cds <- inverse_fisz_transform_from_groups(cs3, fs2, var)
+            cs4 <- cds[[1]]
+            ds3 <- cds[[2]]
 
             # Perform inverse wavelet conversion
-            thresholded_groups <- inverseHaarWaveletTransformForGroups(Cs4, Ds3)
-            thresholded_groups <- lapply(thresholded_groups, function(x) x * groupLength^0.5)
+            thresholded_groups <- inverse_haar_wavelet_transform_for_groups(cs4, ds3)
+            thresholded_groups <- lapply(thresholded_groups, function(x) x * group_length^0.5)
 
             # Perform moving average
-            thresholded_data <- movingAverage(thresholded_groups, dataLength)
+            thresholded_data <- moving_average(thresholded_groups, data_length)
 
-            thresholdedData <- list(estimationData = thresholded_data, cs = Cs4, ds = Ds3, denoiseDs = Denoise_Ds2)
+            thresholded_data <- list(estimation_data = thresholded_data, cs = cs4, ds = ds3, denoise_ds = denoise_ds2)
         } else {
             if (dt == "A1" || dt == "A2" || dt == "A3") {
                 # Transform sub-data to Gaussian data by Anscombe
-                groups <- AnscombeTransformFromGroups(groups, var)
+                groups <- anscombe_transform_from_groups(groups, var)
             } else if (dt == "B1") {
                 # Transform sub-data to Gaussian data by Bartlet
-                groups <- BartlettTransformFromGroups(groups, var)
+                groups <- bartlett_transform_from_groups(groups, var)
             } else if (dt == "B2") {
                 # Transform sub-data to Gaussian data by Bartlet
-                groups <- BartlettTransform2FromGroups(groups, var)
+                groups <- bartlett_transform2_from_groups(groups, var)
             } else if (dt == "Fr") {
-                groups <- FreemanTransformFromGroups(groups, var)
+                groups <- freeman_transform_from_groups(groups, var)
             } else {
                 groups <- groups
             }
-            groups <- lapply(groups, function(x) x/(groupLength^0.5))
+            groups <- lapply(groups, function(x) x/(group_length^0.5))
 
             # Calculate c
-            Cs <- getScalingCoefficientsFromGroups(groups)
+            cs <- get_scaling_coefficients_from_groups(groups)
             # Calculate d
-            Ds <- getWaveletCoefficientsFromGroups(Cs)
+            ds <- get_wavelet_coefficients_from_groups(cs)
 
-            Denoise_Ds <- ThresholdForGroups(Ds, thresholdMode, thresholdName, dt, groups, initThresholdvalue)
+            denoise_ds <- threshold_for_groups(ds, threshold_mode, threshold_name, dt, groups, init_threshold_value)
             # Perform inverse wavelet conversion
-            thresholded_groups <- inverseHaarWaveletTransformForGroups(Cs, Denoise_Ds)
-            thresholded_groups <- lapply(thresholded_groups, function(x) x * groupLength^0.5)
+            thresholded_groups <- inverse_haar_wavelet_transform_for_groups(cs, denoise_ds)
+            thresholded_groups <- lapply(thresholded_groups, function(x) x * group_length^0.5)
 
             # Perform moving average
-            if (thresholdName == "none") {
+            if (threshold_name == "none") {
                 thresholded_data <- thresholded_groups
                 print("none")
             } else {
-                thresholded_data <- movingAverage(thresholded_groups, dataLength)
+                thresholded_data <- moving_average(thresholded_groups, data_length)
             }
 
             if (dt == "A1") {
                 # Perform inverse Anscombe data conversion
-                thresholded_data <- inverseAnscombeTransformFromGroup(thresholded_data, var)
+                thresholded_data <- inverse_anscombe_transform_from_group(thresholded_data, var)
             } else if (dt == "A2") {
                 # Perform inverse Anscombe data conversion
-                thresholded_data <- inverseAnscombeTransform2FromGroup(thresholded_data, var)
+                thresholded_data <- inverse_anscombe_transform2_from_group(thresholded_data, var)
             } else if (dt == "A3") {
                 # Perform inverse Anscombe data conversion
-                thresholded_data <- inverseAnscombeTransform3FromGroup(thresholded_data, var)
+                thresholded_data <- inverse_anscombe_transform3_from_group(thresholded_data, var)
             } else if (dt == "B1") {
                 # Perform inverse Anscombe data conversion
-                thresholded_data <- inverseBartlettTransformFromGroup(thresholded_data, var)
+                thresholded_data <- inverse_bartlett_transform_from_group(thresholded_data, var)
             } else if (dt == "B2") {
                 # Perform inverse Anscombe data conversion
-                thresholded_data <- inverseBartlettTransform2FromGroup(thresholded_data, var)
+                thresholded_data <- inverse_bartlett_transform2_from_group(thresholded_data, var)
             } else if (dt == "Fr") {
-                thresholded_data <- inverseFreemanTransformFromGroup(thresholded_data, var)
+                thresholded_data <- inverse_freeman_transform_from_group(thresholded_data, var)
             } else {
                 thresholded_data <- thresholded_data
             }
-            thresholdedData <- list(estimationData = thresholded_data, cs = Cs, ds = Ds, denoisedDs = Denoise_Ds)
+            thresholded_data <- list(estimation_data = thresholded_data, cs = cs, ds = ds, denoised_ds = denoise_ds)
         }
 
-        return(thresholdedData)
+        return(thresholded_data)
     }
 }
 
 # Translation-invariant Hal wavelet estimation without data transformation
-tipsh <- function(data, thresholdMode, var, index) {
-    thresholdName <- "ldt"
-    groupLength <- 2^index
+tipsh <- function(data, threshold_mode, var, index) {
+    threshold_name <- "ldt"
+    group_length <- 2^index
     # Get data length
-    dataLength <- length(data)
-    if (groupLength >= getGroupLength(dataLength)) {
+    data_length <- length(data)
+    if (group_length >= get_group_length(data_length)) {
         # Get subdata length
-        groupLength <- getGroupLength(dataLength)
+        group_length <- get_group_length(data_length)
     }
     # Cut the original data into a number of sub-data of length 2^J
-    groups <- getGroups(data, groupLength)
-    groups <- lapply(groups, function(x) x/groupLength^0.5)
-    thresholdedGroups <- list()
+    groups <- get_groups(data, group_length)
+    groups <- lapply(groups, function(x) x/group_length^0.5)
+    thresholded_groups <- list()
     # Transration-Invariant Denoising
-    for (i in 1:(dataLength - groupLength + 1)) {
+    for (i in 1:(data_length - group_length + 1)) {
         templist <- groups[[i]]
         shiftgroup <- list()
         lists <- list()
-        for (h in 1:(groupLength - 1)) {
-            shiftgroup <- list(c(templist[(h + 1):groupLength], templist[1:h]))
-            Cs <- getScalingCoefficientsFromGroup(as.numeric(shiftgroup[[1]]))
-            Ds <- getWaveletCoefficientsFromGroup(Cs)
-            Denoise_Ds <- ThresholdForGroup(Ds, thresholdMode, thresholdName)
-            thresholded_group <- inverseHaarWaveletTransformForGroup(Cs, Denoise_Ds)
+        for (h in 1:(group_length - 1)) {
+            shiftgroup <- list(c(templist[(h + 1):group_length], templist[1:h]))
+            cs <- get_scaling_coefficients_from_group(as.numeric(shiftgroup[[1]]))
+            ds <- get_wavelet_coefficients_from_group(cs)
+            denoise_ds <- threshold_for_group(ds, threshold_mode, threshold_name)
+            thresholded_group <- inverse_haar_wavelet_transform_for_group(cs, denoise_ds)
             lists <- append(lists, list(thresholded_group))
         }
-        Cs <- getScalingCoefficientsFromGroup(templist)
-        DS <- getWaveletCoefficientsFromGroup(Cs)
-        Denoise_Ds <- ThresholdForGroup(Ds, thresholdMode, thresholdName)
-        thresholded_group <- inverseHaarWaveletTransformForGroup(Cs, Denoise_Ds)
+        cs <- get_scaling_coefficients_from_group(templist)
+        ds <- get_wavelet_coefficients_from_group(cs)
+        denoise_ds <- threshold_for_group(ds, threshold_mode, threshold_name)
+        thresholded_group <- inverse_haar_wavelet_transform_for_group(cs, denoise_ds)
         lists <- append(lists, list(thresholded_group))
-        for (h in 1:(groupLength - 1)) {
+        for (h in 1:(group_length - 1)) {
             templist <- lists[[h]]
-            lists[h] <- list(c(templist[(groupLength - h + 1):(groupLength)], templist[1:(groupLength - h)]))
+            lists[h] <- list(c(templist[(group_length - h + 1):(group_length)], templist[1:(group_length - h)]))
         }
         sumlist <- c()
-        for (j in 1:groupLength) {
+        for (j in 1:group_length) {
             sl <- 0
-            for (k in 1:groupLength) {
+            for (k in 1:group_length) {
                 sl <- sl + lists[[k]][j]
             }
             sumlist <- c(sumlist, sl)
         }
-        thresholdedGroups[[i]] <- (sumlist/groupLength)
+        thresholded_groups[[i]] <- (sumlist/group_length)
     }
 
-    thresholdedGroups <- lapply(thresholdedGroups, function(x) x * groupLength^0.5)
+    thresholded_groups <- lapply(thresholded_groups, function(x) x * group_length^0.5)
 
     # Perform moving average
-    thresholdedData <- movingAverage(thresholdedGroups, dataLength)
-    thresholdedData <- list(estimationData = thresholdedData, cs = Cs, ds = Ds, denoisedDs = Denoise_Ds)
+    thresholded_data <- moving_average(thresholded_groups, data_length)
+    thresholded_data <- list(estimation_data = thresholded_data, cs = cs, ds = ds, denoised_ds = denoise_ds)
 
     # Return Results
-    return(thresholdedData)
+    return(thresholded_data)
 }
 
 # cumulative function
-toCulData <- function(data) {
-    culData <- c()
-    oldValue <- 0
+to_cul_data <- function(data) {
+    cul_data <- c()
+    old_value <- 0
     index <- 1
     while (index <= length(data)) {
-        nowValue <- data[[index]] + oldValue
-        culData <- append(culData, nowValue)
-        oldValue <- nowValue
+        now_value <- data[[index]] + old_value
+        cul_data <- append(cul_data, now_value)
+        old_value <- now_value
         index <- index + 1
     }
-    return(culData)
+    return(cul_data)
 }
 
 # Load data from file
-loadData <- function(dataPath) {
-    dataPath <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), dataPath)
-    ds <- read.table(dataPath)[2]
+load_data <- function(data_path) {
+    data_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), data_path)
+    ds <- read.table(data_path)[2]
     ds <- as.numeric(ds$V2)
     return(ds)
 }
 
 
 # creating file format
-createFile <- function(i, resultPath, time) {
+create_file <- function(i, result_path, time) {
     file_name_edata <- paste0(time, "_edata_J=", i, ".csv")
     file_name_coe <- paste0(time, "_coe_J=", i, ".csv")
     file_name_variable <- paste0(time, "_var_J=", i, ".RData")
-    edata <- paste0(resultPath, file_name_edata)
-    coe <- paste0(resultPath, file_name_coe)
-    variable <- paste0(resultPath, file_name_variable)
+    edata <- paste0(result_path, file_name_edata)
+    coe <- paste0(result_path, file_name_coe)
+    variable <- paste0(result_path, file_name_variable)
     file_path <- list(edata = edata, coe = coe, variable = variable)
     return(file_path)
 }
 
 # creating result
-createResult <- function(hard, soft, index, resultPath) {
+create_result <- function(hard, soft, index, result_path) {
     time <- Sys.time() %>%
         format("%H-%M-%S")
-    edata <- list(hard = round(hard$estimationData, digits = 3), soft = round(soft$estimationData, digits = 3))
-    hard_coe <- rbind("Cs", as.data.frame(t(sapply(hard$Cs, unlist))), "Ds", as.data.frame(t(sapply(hard$Ds, unlist))), "Denoise_Ds", as.data.frame(t(sapply(hard$Denoise_Ds, unlist))))
-    soft_coe <- rbind("Cs", as.data.frame(t(sapply(soft$Cs, unlist))), "Ds", as.data.frame(t(sapply(soft$Ds, unlist))), "Denoise_Ds", as.data.frame(t(sapply(soft$Denoise_Ds, unlist))))
+    edata <- list(hard = round(hard$estimation_data, digits = 3), soft = round(soft$estimation_data, digits = 3))
+    hard_coe <- rbind("cs", as.data.frame(t(sapply(hard$cs, unlist))), "ds", as.data.frame(t(sapply(hard$ds, unlist))), "denoise_ds", as.data.frame(t(sapply(hard$denoise_ds, unlist))))
+    soft_coe <- rbind("cs", as.data.frame(t(sapply(soft$cs, unlist))), "ds", as.data.frame(t(sapply(soft$ds, unlist))), "denoise_ds", as.data.frame(t(sapply(soft$denoise_ds, unlist))))
     coe <- rbind("hard", hard_coe, "soft", soft_coe)
-    file_path <- createFile(index, resultPath, time)
+    file_path <- create_file(index, result_path, time)
     write.csv(edata, file_path$edata, row.names = FALSE)
     write.csv(coe, file_path$coe, row.names = FALSE)
     save(hard, soft, file = file_path$variable)
 }
-FALSE

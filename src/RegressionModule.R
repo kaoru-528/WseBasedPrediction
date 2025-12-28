@@ -10,15 +10,15 @@ quadratic_function <- function(x, a, b, c) {
 
 # 回帰実行関数
 run_regression_for_periodic_function <- function(j, coe) {
-    MAX_SEARCH_RANGE <- 10
+    max_search_range <- 10
     tmp_coe <- unlist(coe)
     x <- seq(1, length(tmp_coe))
     model_coe_list <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric(), d = numeric())
 
-    for (sub_a in seq(0.5, MAX_SEARCH_RANGE, by = 0.5)) {
-        for (sub_b in seq(0.5, MAX_SEARCH_RANGE, by = 0.5)) {
-            for (sub_c in seq(0.5, MAX_SEARCH_RANGE, by = 0.5)) {
-                for (sub_d in seq(0, MAX_SEARCH_RANGE, by = 0.5)) {
+    for (sub_a in seq(0.5, max_search_range, by = 0.5)) {
+        for (sub_b in seq(0.5, max_search_range, by = 0.5)) {
+            for (sub_c in seq(0.5, max_search_range, by = 0.5)) {
+                for (sub_d in seq(0, max_search_range, by = 0.5)) {
                   fit <- tryCatch({
                     nls(tmp_coe ~ periodic_function(x, a, b, c, d), start = list(a = sub_a, b = sub_b, c = sub_c, d = sub_d), control = nls.control(warnOnly = TRUE))
                   }, error = function(e) NULL)
@@ -45,16 +45,16 @@ run_regression_for_periodic_function <- function(j, coe) {
 
 # cal coe in regression function
 run_regression_for_quadratic_function <- function(i, coe) {
-    MAX_SEARCH_RANGE <- 1
+    max_search_range <- 1
     tmp_coe <- unlist(coe)
     x <- seq(1, length(tmp_coe))
     a_data <- data.frame(mse = numeric(), a = numeric(), b = numeric(), c = numeric())
     if (all(sapply(coe[[i]], function(x) x == 0)) == TRUE) {
         a_data <- data.frame(mse = 0, a = 0, b = 0, c = 0)
     } else {
-        for (sub_a in seq(0, MAX_SEARCH_RANGE, by = 0.5)) {
-            for (sub_b in seq(0, MAX_SEARCH_RANGE, by = 0.5)) {
-                for (sub_c in seq(0, MAX_SEARCH_RANGE, by = 0.5)) {
+        for (sub_a in seq(0, max_search_range, by = 0.5)) {
+            for (sub_b in seq(0, max_search_range, by = 0.5)) {
+                for (sub_c in seq(0, max_search_range, by = 0.5)) {
                   fit <- nls(tmp_coe ~ quadratic_function(x, a, b, c), start = list(a = sub_a, b = sub_b, c = sub_c), control = nls.control(warnOnly = TRUE))
                   params <- coef(fit)
                   pre <- quadratic_function(x, params[1], params[2], params[3])
@@ -121,7 +121,7 @@ run_parallel_arima_regression <- function(coe, prediction_term) {
     return(prediction_result)
 }
 
-run_lstm_regression <- function(training_data, prediction_term) {
+run_lstm_regression <- function(training_data, prediction_term, units = 1000, epochs = 500) {
     min_val <- min(training_data)
     max_val <- max(training_data)
 
@@ -135,23 +135,23 @@ run_lstm_regression <- function(training_data, prediction_term) {
     } else {
        input_size <- 3
     }
-    X <- NULL
-    Y <- NULL
+    x <- NULL
+    y <- NULL
     for (i in 1:(length(training_data_norm) - input_size)) {
-        X <- rbind(X, training_data_norm[i:(i + input_size - 1)])
-        Y <- c(Y, training_data_norm[i + input_size])
+        x <- rbind(x, training_data_norm[i:(i + input_size - 1)])
+        y <- c(y, training_data_norm[i + input_size])
     }
 
     # 全データで再学習し予測
     model <- keras_model_sequential() %>%
-        layer_lstm(units = 1000, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
+        layer_lstm(units = units, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
         layer_dense(units = 1, activation = "relu")
     model %>% compile(
         loss = 'mean_squared_error',
         optimizer = optimizer_adam(lr = 0.001)
     )
-    train_X_arr <- array_reshape(X, c(nrow(X), input_size, 1))
-    model %>% fit(train_X_arr, Y, epochs = 500, batch_size = 32, verbose = 0)
+    train_x_arr <- array_reshape(x, c(nrow(x), input_size, 1))
+    model %>% fit(train_x_arr, y, epochs = epochs, batch_size = 32, verbose = 0)
 
     # 予測用データ作成
     last_seq <- training_data_norm[(length(training_data_norm) - input_size + 1):length(training_data_norm)]
@@ -169,7 +169,7 @@ run_lstm_regression <- function(training_data, prediction_term) {
     return(prediction_result)
 }
 
-run_rnn_regression <- function(training_data, prediction_term) {
+run_rnn_regression <- function(training_data, prediction_term, units = 4, epochs = 20) {
     min_val <- min(training_data)
     max_val <- max(training_data)
 
@@ -183,16 +183,16 @@ run_rnn_regression <- function(training_data, prediction_term) {
     } else {
        input_size <- 3
     }
-    X <- NULL
-    Y <- NULL
+    x <- NULL
+    y <- NULL
     for (i in 1:(length(training_data_norm) - input_size)) {
-        X <- rbind(X, training_data_norm[i:(i + input_size - 1)])
-        Y <- c(Y, training_data_norm[i + input_size])
+        x <- rbind(x, training_data_norm[i:(i + input_size - 1)])
+        y <- c(y, training_data_norm[i + input_size])
     }
 
     # RNNモデルの構築
     model <- keras_model_sequential() %>%
-        layer_simple_rnn(units = 4, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
+        layer_simple_rnn(units = units, input_shape = c(input_size, 1), return_sequences = FALSE, activation = "relu") %>%
         layer_dropout(rate = 0.1) %>%
         layer_dense(units = 1, activation = "relu")
 
@@ -201,8 +201,8 @@ run_rnn_regression <- function(training_data, prediction_term) {
         optimizer = optimizer_adam(lr = 0.001)
     )
 
-    train_X_arr <- array_reshape(X, c(nrow(X), input_size, 1))
-    model %>% fit(train_X_arr, Y, epochs = 20, batch_size = 1, verbose = 0)
+    train_x_arr <- array_reshape(x, c(nrow(x), input_size, 1))
+    model %>% fit(train_x_arr, y, epochs = epochs, batch_size = 1, verbose = 0)
     # 予測用データ作成
     last_seq <- training_data_norm[(length(training_data_norm) - input_size + 1):length(training_data_norm)]
     preds_norm <- c()
