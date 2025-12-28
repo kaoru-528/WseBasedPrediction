@@ -1,65 +1,65 @@
-ThresholdForGroups <- function(Ds, thresholdMode, thresholdName, dt, groups, initThresholdvalue) {
-    groupLength <- length(Ds)
+threshold_for_groups <- function(ds, threshold_mode, threshold_name, dt, groups, init_threshold_value) {
+    group_length <- length(ds)
     lists <- list()
     u <- 1
-    while (u <= groupLength) {
-        list_s <- ThresholdForGroup(Ds[[u]], thresholdMode, thresholdName, dt, groups, initThresholdvalue, u)
+    while (u <= group_length) {
+        list_s <- threshold_for_group(ds[[u]], threshold_mode, threshold_name, dt, groups, init_threshold_value, u)
         lists <- append(lists, list(list_s))
         u <- u + 1
     }
     return(lists)
 }
 
-# Apply the soft or hard thresholding method of thresholdName to a set of wavelet coefficients
-ThresholdForGroup <- function(GroupWaveletCoefficients, thresholdMode, thresholdName, dt, groups, initThresholdvalue, j) {
-    if (thresholdName == "ut" || thresholdName == "ldt" || thresholdName == "lut" || thresholdName == "none") {
-        dataLength <- length(GroupWaveletCoefficients[[1]])
+# Apply the soft or hard thresholding method of threshold_name to a set of wavelet coefficients
+threshold_for_group <- function(group_wavelet_coefficients, threshold_mode, threshold_name, dt, groups, init_threshold_value, j) {
+    if (threshold_name == "ut" || threshold_name == "ldt" || threshold_name == "lut" || threshold_name == "none") {
+        data_length <- length(group_wavelet_coefficients[[1]])
         t <- 1000
         j <- 1
-        if (thresholdName == "ut") {
-            t <- getUniversalThreshold(dataLength)
-        } else if (thresholdName == "none") {
-            t <- initThresholdvalue
+        if (threshold_name == "ut") {
+            t <- get_universal_threshold(data_length)
+        } else if (threshold_name == "none") {
+            t <- init_threshold_value
         }
         lists <- list()
-        lists <- append(lists, list(GroupWaveletCoefficients[[1]]))
+        lists <- append(lists, list(group_wavelet_coefficients[[1]]))
         i <- 2
-        groupLength <- length(GroupWaveletCoefficients)
+        group_length <- length(group_wavelet_coefficients)
 
-        if (thresholdName == "ldt" || thresholdName == "lut") {
-            C <- getScalingCoefficientsFromGroup(GroupWaveletCoefficients[[1]])
-            lam0 <- mean(GroupWaveletCoefficients[[1]]) * (dataLength^0.5)
+        if (threshold_name == "ldt" || threshold_name == "lut") {
+            c <- get_scaling_coefficients_from_group(group_wavelet_coefficients[[1]])
+            lam0 <- mean(group_wavelet_coefficients[[1]]) * (data_length^0.5)
         }
 
-        while (i <= groupLength) {
-            if (thresholdName == "ldt") {
-                tempList <- ldtThreshold(GroupWaveletCoefficients[[i]], thresholdMode, i, dataLength, lam0)
+        while (i <= group_length) {
+            if (threshold_name == "ldt") {
+                temp_list <- ldt_threshold(group_wavelet_coefficients[[i]], threshold_mode, i, data_length, lam0)
             } else {
-                if (thresholdName == "lut") {
-                  ut_dataLength <- length(C[[i]])
-                  t <- getUniversalThreshold(ut_dataLength)
+                if (threshold_name == "lut") {
+                  ut_data_length <- length(c[[i]])
+                  t <- get_universal_threshold(ut_data_length)
                 }
-                tempList <- ThresholdForOneLevel(GroupWaveletCoefficients[[i]], thresholdMode, t)
+                temp_list <- threshold_for_one_level(group_wavelet_coefficients[[i]], threshold_mode, t)
             }
-            lists <- append(lists, list(tempList))
+            lists <- append(lists, list(temp_list))
             i <- i + 1
         }
     } else {
-        sub_groupLength <- length(groups[[1]])
+        sub_group_length <- length(groups[[1]])
         if (j != length(groups)) {
-            next_value <- next_value <- groups[[j + 1]][sub_groupLength]
+            next_value <- next_value <- groups[[j + 1]][sub_group_length]
         } else {
-            next_value <- next_value <- groups[[1]][sub_groupLength]
+            next_value <- next_value <- groups[[1]][sub_group_length]
         }
-        t <- lhtThreshold(groups[[j]], dt, thresholdName, thresholdMode, next_value)
+        t <- lht_threshold(groups[[j]], dt, threshold_name, threshold_mode, next_value)
         j <- j + 1
         lists <- list()
-        lists <- append(lists, list(GroupWaveletCoefficients[[1]]))
+        lists <- append(lists, list(group_wavelet_coefficients[[1]]))
         i <- 2
-        groupLength <- length(GroupWaveletCoefficients)
-        while (i <= groupLength) {
-            tempList <- ThresholdForOneLevel(GroupWaveletCoefficients[[i]], thresholdMode, t)
-            lists <- append(lists, list(tempList))
+        group_length <- length(group_wavelet_coefficients)
+        while (i <= group_length) {
+            temp_list <- threshold_for_one_level(group_wavelet_coefficients[[i]], threshold_mode, t)
+            lists <- append(lists, list(temp_list))
             i <- i + 1
         }
     }
@@ -67,17 +67,17 @@ ThresholdForGroup <- function(GroupWaveletCoefficients, thresholdMode, threshold
 }
 
 # --------------------------------- Get ut, lut threshold ut:Universal Threshold lut:Level-universal-Threshold lut is applied to the length of j-th level empirical wavelet coefficients.  ---------------------------------
-getUniversalThreshold <- function(groupLength) {
-    a <- log(groupLength)
+get_universal_threshold <- function(group_length) {
+    a <- log(group_length)
     b <- 2 * a
     c <- b^0.5
     return(c)
 }
 
 # --------------------------------- Get ldt threshold ldt:Level-dependent-Threshold ---------------------------------
-getLevelDependentThreshold <- function(J, now_level, mean) {
+get_level_dependent_threshold <- function(j_level, now_level, mean) {
     a <- 2^(-1 * 0.5 * (now_level + 1))
-    log2j <- log(2^(J - now_level + 1))
+    log2j <- log(2^(j_level - now_level + 1))
     b <- 2 * log2j
     c <- 4 * (log2j)^2
     d <- 8 * mean * log2j
@@ -86,41 +86,41 @@ getLevelDependentThreshold <- function(J, now_level, mean) {
 }
 
 # Thresholding the wavelet coefficients of a layer at a threshold value of t
-ThresholdForOneLevel <- function(WaveletCoefficients, thresholdMode, t) {
-    coefficientsLength <- length(WaveletCoefficients)
-    tempList <- c()
+threshold_for_one_level <- function(wavelet_coefficients, threshold_mode, t) {
+    coefficients_length <- length(wavelet_coefficients)
+    temp_list <- c()
     i <- 1
-    while (i <= coefficientsLength) {
-        a <- Threshold(WaveletCoefficients[i], t, thresholdMode)
-        tempList <- append(tempList, a)
+    while (i <= coefficients_length) {
+        a <- threshold(wavelet_coefficients[i], t, threshold_mode)
+        temp_list <- append(temp_list, a)
         i <- i + 1
     }
-    return(tempList)
+    return(temp_list)
 }
 
 # Calculating ldt and thresholding the data
-ldtThreshold <- function(data, thresholdMode, loop_level, dataLength, lam0) {
+ldt_threshold <- function(data, threshold_mode, loop_level, data_length, lam0) {
     # Highest Resolution
-    J <- getHighestResolutionLevel(dataLength)
+    j_level <- get_highest_resolution_level(data_length)
     # Thresholding the data one by one
     i <- 1
-    tempList <- c()
+    temp_list <- c()
     mean <- lam0/length(data)
     while (i <= length(data)) {
         # Get ldt threshold
-        t <- getLevelDependentThreshold(J, loop_level, mean)
+        t <- get_level_dependent_threshold(j_level, loop_level, mean)
         # Threshold processing
-        denoise_data <- Threshold(data[[i]], t, thresholdMode)
-        tempList <- append(tempList, denoise_data)
+        denoise_data <- threshold(data[[i]], t, threshold_mode)
+        temp_list <- append(temp_list, denoise_data)
         i <- i + 1
     }
-    return(tempList)
+    return(temp_list)
 }
 
-lhtThreshold <- function(original_groups, transform_method, threshold_rule, thresholdMode, next_value) {
+lht_threshold <- function(original_groups, transform_method, threshold_rule, threshold_mode, next_value) {
     # 偶数番目と奇数番目に分ける
     subgroup_len <- length(original_groups)
-    minimum <- optim(par = 0, fn = loss_function, original_group = original_groups, dt = transform_method, thresholdName = threshold_rule, thresholdMode = thresholdMode, next_value = next_value, method = "Brent", lower = -5, upper = 5)$par
+    minimum <- optim(par = 0, fn = loss_function, original_group = original_groups, dt = transform_method, threshold_name = threshold_rule, threshold_mode = threshold_mode, next_value = next_value, method = "Brent", lower = -5, upper = 5)$par
     # minimumが負の値になる場合は0にする
     if (minimum < 0) {
         minimum <- 0
@@ -129,7 +129,7 @@ lhtThreshold <- function(original_groups, transform_method, threshold_rule, thre
     return(threshold_value)
 }
 
-loss_function <- function(t, original_group, dt, thresholdName, thresholdMode, next_value) {
+loss_function <- function(t, original_group, dt, threshold_name, threshold_mode, next_value) {
     # Separate even-numbered and odd-numbered
     odd_group <- original_group[seq(1, length(original_group), by = 2)]
     even_group <- original_group[seq(2, length(original_group), by = 2)]
@@ -138,8 +138,8 @@ loss_function <- function(t, original_group, dt, thresholdName, thresholdMode, n
     even_index <- log(length(even_group), base = 2)
 
     # Perform WSE for even and odd numbers
-    thresholded_odd_group <- wse(odd_group, dt, "none", thresholdMode, 1, odd_index, t)
-    thresholded_even_group <- wse(even_group, dt, "none", thresholdMode, 1, even_index, t)
+    thresholded_odd_group <- wse(odd_group, dt, "none", threshold_mode, 1, odd_index, t)
+    thresholded_even_group <- wse(even_group, dt, "none", threshold_mode, 1, even_index, t)
 
     original_group <- append(original_group, next_value)
 
@@ -174,8 +174,8 @@ loss_function <- function(t, original_group, dt, thresholdName, thresholdMode, n
 }
 
 # Thresholding of the value coe according to the threshold r
-Threshold <- function(coe, r, thresholdMode) {
-    if (thresholdMode == "h") {
+threshold <- function(coe, r, threshold_mode) {
+    if (threshold_mode == "h") {
         if (abs(coe) <= r) {
             return(0)
         } else {
@@ -193,4 +193,3 @@ Threshold <- function(coe, r, thresholdMode) {
         }
     }
 }
-FALSE

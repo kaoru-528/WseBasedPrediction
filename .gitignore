@@ -1,6 +1,9 @@
 #自分の研究用に作成したファイルなので, 無視してください.
 output/
 src/main_experiment.R
+DS/
+experiment_A_convert_to_format_for_excel.py
+experiment_B_convert_to_format_for_excel.py
 .DS_Store
 .Rhistory
 .RData

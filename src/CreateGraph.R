@@ -1,63 +1,63 @@
-createGraph <- function(name, data, sorted_best_coe, coe_name, coeLength, predictionTerm) {
+create_graph <- function(name, data, sorted_best_coe, coe_name, coe_length, prediction_term) {
     for (i in seq(1, 8, by = 1)) {
         # definition of data
-        Cs <- data$Cs
-        Ds <- data$Ds
-        dDs <- data$Denoise_Ds
+        cs <- data$cs
+        ds <- data$ds
+        d_ds <- data$denoise_ds
 
-        coeLength <- length(Cs)
+        coe_length <- length(cs)
 
-        tmp_Cs_4_1 <- list()
+        tmp_cs_4_1 <- list()
 
-        tmp_Ds_2_1 <- list()
-        tmp_Ds_2_2 <- list()
-        tmp_Ds_2_3 <- list()
-        tmp_Ds_2_4 <- list()
-        tmp_Ds_3_1 <- list()
-        tmp_Ds_3_2 <- list()
-        tmp_Ds_4_1 <- list()
+        tmp_ds_2_1 <- list()
+        tmp_ds_2_2 <- list()
+        tmp_ds_2_3 <- list()
+        tmp_ds_2_4 <- list()
+        tmp_ds_3_1 <- list()
+        tmp_ds_3_2 <- list()
+        tmp_ds_4_1 <- list()
 
-        tmp_dDs_2_1 <- list()
-        tmp_dDs_2_2 <- list()
-        tmp_dDs_2_3 <- list()
-        tmp_dDs_2_4 <- list()
-        tmp_dDs_3_1 <- list()
-        tmp_dDs_3_2 <- list()
-        tmp_dDs_4_1 <- list()
+        tmp_d_ds_2_1 <- list()
+        tmp_d_ds_2_2 <- list()
+        tmp_d_ds_2_3 <- list()
+        tmp_d_ds_2_4 <- list()
+        tmp_d_ds_3_1 <- list()
+        tmp_d_ds_3_2 <- list()
+        tmp_d_ds_4_1 <- list()
 
         coe <- list()
         # coe_name_list
         coe_name <- list("C[4][1]", "D[1][1]", "D[1][2]", "D[1][3]", "D[1][4]", "D[2][1]", "D[2][2]", "D[3][1]", "Donise_D[1][1]", "Donise_D[1][2]", "Donise_D[1][3]", "Donise_D[1][4]", "Donise_D[2][1]", "Donise_D[2][2]", "Donise_D[3][1]")
 
 
-        for (j in seq(1, length(Ds) - predictionTerm, by = 1)) {
-            tmp_Cs_4_1 <- c(tmp_Cs_4_1, Cs[[j]][[4]][1])
+        for (j in seq(1, length(ds) - prediction_term, by = 1)) {
+            tmp_cs_4_1 <- c(tmp_cs_4_1, cs[[j]][[4]][1])
 
-            tmp_Ds_2_1 <- c(tmp_Ds_2_1, Ds[[j]][[2]][1])
-            tmp_Ds_2_2 <- c(tmp_Ds_2_2, Ds[[j]][[2]][2])
-            tmp_Ds_2_3 <- c(tmp_Ds_2_3, Ds[[j]][[2]][3])
-            tmp_Ds_2_4 <- c(tmp_Ds_2_4, Ds[[j]][[2]][4])
-            tmp_Ds_3_1 <- c(tmp_Ds_3_1, Ds[[j]][[3]][1])
-            tmp_Ds_3_2 <- c(tmp_Ds_3_2, Ds[[j]][[3]][2])
-            tmp_Ds_4_1 <- c(tmp_Ds_4_1, Ds[[j]][[4]][1])
+            tmp_ds_2_1 <- c(tmp_ds_2_1, ds[[j]][[2]][1])
+            tmp_ds_2_2 <- c(tmp_ds_2_2, ds[[j]][[2]][2])
+            tmp_ds_2_3 <- c(tmp_ds_2_3, ds[[j]][[2]][3])
+            tmp_ds_2_4 <- c(tmp_ds_2_4, ds[[j]][[2]][4])
+            tmp_ds_3_1 <- c(tmp_ds_3_1, ds[[j]][[3]][1])
+            tmp_ds_3_2 <- c(tmp_ds_3_2, ds[[j]][[3]][2])
+            tmp_ds_4_1 <- c(tmp_ds_4_1, ds[[j]][[4]][1])
 
-            tmp_dDs_2_1 <- c(tmp_dDs_2_1, dDs[[j]][[2]][1])
-            tmp_dDs_2_2 <- c(tmp_dDs_2_2, dDs[[j]][[2]][2])
-            tmp_dDs_2_3 <- c(tmp_dDs_2_3, dDs[[j]][[2]][3])
-            tmp_dDs_2_4 <- c(tmp_dDs_2_4, dDs[[j]][[2]][4])
-            tmp_dDs_3_1 <- c(tmp_dDs_3_1, dDs[[j]][[3]][1])
-            tmp_dDs_3_2 <- c(tmp_dDs_3_2, dDs[[j]][[3]][2])
-            tmp_dDs_4_1 <- c(tmp_dDs_4_1, dDs[[j]][[4]][1])
+            tmp_d_ds_2_1 <- c(tmp_d_ds_2_1, d_ds[[j]][[2]][1])
+            tmp_d_ds_2_2 <- c(tmp_d_ds_2_2, d_ds[[j]][[2]][2])
+            tmp_d_ds_2_3 <- c(tmp_d_ds_2_3, d_ds[[j]][[2]][3])
+            tmp_d_ds_2_4 <- c(tmp_d_ds_2_4, d_ds[[j]][[2]][4])
+            tmp_d_ds_3_1 <- c(tmp_d_ds_3_1, d_ds[[j]][[3]][1])
+            tmp_d_ds_3_2 <- c(tmp_d_ds_3_2, d_ds[[j]][[3]][2])
+            tmp_d_ds_4_1 <- c(tmp_d_ds_4_1, d_ds[[j]][[4]][1])
         }
 
         # coe_list
-        coe <- list(tmp_Cs_4_1, tmp_Ds_2_1, tmp_Ds_2_2, tmp_Ds_2_3, tmp_Ds_2_4, tmp_Ds_3_1, tmp_Ds_3_2, tmp_Ds_4_1, tmp_dDs_2_1, tmp_dDs_2_2, tmp_dDs_2_3, tmp_dDs_2_4, tmp_dDs_3_1, tmp_dDs_3_2, tmp_dDs_4_1)
+        coe <- list(tmp_cs_4_1, tmp_ds_2_1, tmp_ds_2_2, tmp_ds_2_3, tmp_ds_2_4, tmp_ds_3_1, tmp_ds_3_2, tmp_ds_4_1, tmp_d_ds_2_1, tmp_d_ds_2_2, tmp_d_ds_2_3, tmp_d_ds_2_4, tmp_d_ds_3_1, tmp_d_ds_3_2, tmp_d_ds_4_1)
 
         title <- paste0(name, "\n", coe_name[[i]])
         filename_graph <- paste0("./OUTPUT/", name, "_", coe_name[[i]], ".png")
         print(filename_graph)
         png(filename_graph, width = 1344, height = 914)
-        x <- c(1:(coeLength - predictionTerm))
+        x <- c(1:(coe_length - prediction_term))
         f <- function(x, a, b, c, d) {
             (a * sin((b * x) + c)) + d
         }
@@ -67,7 +67,7 @@ createGraph <- function(name, data, sorted_best_coe, coe_name, coeLength, predic
     }
 }
 
-CreateGraphForArimaBasedPrediction <- function(prediction_result, all_coefficients_data, coeLength, predictionTerm, name) {
+create_graph_for_arima_based_prediction <- function(prediction_result, all_coefficients_data, coe_length, prediction_term, name) {
     for (i in seq(1, 8, by = 1)) {
         coe_name <- list("C[0][0]", "D[2][0]", "D[2][1]", "D[2][2]", "D[2][3]", "D[1][0]", "D[1][1]", "D[0][0]")
         file_name <- paste0(name, coe_name[[i]], ".png")
@@ -93,7 +93,7 @@ CreateGraphForArimaBasedPrediction <- function(prediction_result, all_coefficien
     }
 }
 
-CreateGraphForWaveleDecomposePrediction <- function(prediction_result, all_coefficients_data, coeLength, predictionTerm, name, resolution) {
+create_graph_for_wavele_decompose_prediction <- function(prediction_result, all_coefficients_data, coe_length, prediction_term, name, resolution) {
     for (i in seq(1, resolution + 1, by = 1)) {
         coe_name <- list()
         for (j in seq(1, resolution + 1, by = 1)) {
@@ -125,4 +125,3 @@ CreateGraphForWaveleDecomposePrediction <- function(prediction_result, all_coeff
         ggsave(file_name, plot = plot, width = 13.44, height = 9.14)
     }
 }
-FALSE
