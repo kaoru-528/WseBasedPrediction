@@ -19,39 +19,29 @@ sliding_window_wavelet_shrinkage_prediction <- function(data, dt, threshold_name
         )
     } else if (regression_model == "arima") {
        arima_based_prediction(
-        data = data,
-        dt = dt,
-        threshold_name = threshold_name,
-        threshold_mode = threshold_mode,
-        index = index,
-        init_threshold_value = init_threshold_value,
-        training_percentage = training_percentage,
-        name = name
-       )
-    } else if (regression_model == "rnn") {
-        rnn_based_prediction(
-        data = data,
-        dt = dt,
-        threshold_name = threshold_name,
-        threshold_mode = threshold_mode,
-        index = index,
-        init_threshold_value = init_threshold_value,
-        training_percentage = training_percentage,
-        name = name,
-        units = units,
-        epochs = epochs
-        )
-    } else if (regression_model == "quatratic") {
-        quatratic_based_prediction(
             data = data,
             dt = dt,
             threshold_name = threshold_name,
             threshold_mode = threshold_mode,
             index = index,
             init_threshold_value = init_threshold_value,
-            training_percentage = training_percentage
+            training_percentage = training_percentage,
+            name = name
+       )
+    } else if (regression_model == "rnn") {
+        rnn_based_prediction(
+            data = data,
+            dt = dt,
+            threshold_name = threshold_name,
+            threshold_mode = threshold_mode,
+            index = index,
+            init_threshold_value = init_threshold_value,
+            training_percentage = training_percentage,
+            name = name,
+            units = units,
+            epochs = epochs
         )
-    }
+    } 
     else {
        print("Unsupported regression model")
     }
@@ -123,7 +113,7 @@ arima_based_prediction <- function(data, dt, threshold_name, threshold_mode, ind
     tic()
     prediction_result <- run_parallel_arima_regression(coefficients_data_for_training, prediction_term)
     time <- toc()
-    create_graph_for_arima_based_prediction(prediction_result, all_coefficients_data, coe_length, prediction_term, name)
+    create_graph_for_swwsp(prediction_result, all_coefficients_data, coe_length, prediction_term, name)
 
     y <- c(1:coe_length)
     c_4_1 <- c(unlist(coefficients_data_for_training[[1]]), prediction_result[[1]]$mean)
@@ -176,7 +166,7 @@ rnn_based_prediction <- function(data, dt, threshold_name, threshold_mode, index
         prediction_result[[j]] <- data.frame(mean = prediction_result_each_resolution_level)
     }
     time <- toc()
-    # create_graph_for_arima_based_prediction(prediction_result, all_coefficients_data, coe_length, prediction_term, name)
+    create_graph_for_swwsp(prediction_result, all_coefficients_data, coe_length, prediction_term, name)
     y <- c(1:coe_length)
     c_4_1 <- c(unlist(coefficients_data_for_training[[1]]), prediction_result[[1]]$mean)
     d_1_1 <- c(unlist(coefficients_data_for_training[[2]]), prediction_result[[2]]$mean)
@@ -206,6 +196,7 @@ rnn_based_prediction <- function(data, dt, threshold_name, threshold_mode, index
         all_data <- pmax(all_data, 0)
         prediction_data <- list(prediction_data = tail(all_data, prediction_term), execute_time = time)
     } else {
+        # doubleを指定したとき
         denoised_ds_soft <- threshold_for_groups(ds = ds, threshold_mode = "soft", threshold_name = threshold_name, dt = dt, groups = 0, init_threshold_value = 1)
         denoised_ds_hard <- threshold_for_groups(ds = ds, threshold_mode = "hard", threshold_name = threshold_name, dt = dt, groups = 0, init_threshold_value = 1)
         i_groups_soft <- inverse_haar_wavelet_transform_for_groups(cs, denoised_ds_soft)
@@ -397,7 +388,7 @@ multi_resolution_wavelet_prediction <- function(data, training_percentage, resol
 
     time <- toc()
 
-    # create_graph_for_wavele_decompose_prediction(prediction_result, all_coefficients_data, length(data), prediction_term, name, resolution_level)
+    create_graph_for_mwwp(prediction_result, all_coefficients_data, length(data), prediction_term, name, resolution_level)
 
     prediction_wavelet <- list()
     prediction_scaling <- list()
