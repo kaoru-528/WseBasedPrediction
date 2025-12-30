@@ -2,43 +2,31 @@
 
 Author: Kaoru Matsui
 
-## 実績
-
-- 松井 薫, 肖 霄, “Predicting the number of software faults using wavelets and nonlinear regression ,”日本オペレーションズ・リサーチ学会 2024 年春季研究発表会，3 月 7 日 - 8 日, 2024.
-
-- Kaoru Matsui, Xiao Xiao, “On predicting software intensity using wavelets and nonlinear regression ,” The 3rd International Workshop on Dependable Computing for Complex Systems, June 24 – 27, 2024 - [発表スライド](https://drive.google.com/file/d/1YU_mzj9MkPr99nMFulSWOj3QVM9BrbDL/view?usp=drive_link), [論文](https://www.computer.org/csdl/proceedings-article/dsn-w/2024/957200a021/1ZNTmnn46ac)
-
 # WseBasedPrediction について
 
-**WseBasedPrediction**は，ソフトウェアフォールト発見数データから，ウェーブレット縮小推定を拡張し,フォールト発見数（欠陥数）を予測するものです．
+**WseBasedPrediction**は，ソフトウェアフォールト発見数データから，ウェーブレット解析を拡張し,フォールト発見数（欠陥数）を予測するものです．
 現在以下の手法が実装されています.
-| 手法名 | 備考 |
-| ------------- | ------------- |
-| Quadratic-based Prediction | 2015 Xiao |
-| Periodic-based Prediction | 2023 Matsui |
+| 手法名 | 関数名 | 備考 |
+| ------------- | ------------- | ------------- |
+| Quadratic-based Prediction | `quatratic_based_prediction()` | 2015 Xiao |
+| Sliding Window Wavelet Shrinkage Prediction (SWWSP) | `sliding_window_wavelet_shrinkage_prediction()` | 回帰モデルとして periodic, arima, rnn を選択可能 |
+| Multi-resolution Wavelet Prediction (MWWP) | `multi_resolution_wavelet_prediction()` | 回帰モデルとして arima, periodic, lstm, rnn, prophet を選択可能 |
+
+> [!NOTE]
+> `PeriodicBasedPrediction()` は `sliding_window_wavelet_shrinkage_prediction()` で `regression_model = "periodic"` を指定したものと同等です。
 
 # WseBasedPrediction の使い方
 
 このリポジトリを clone した後, 必要なパッケージをインストールして WseBasedPrediction 直下で`/src/WseBasedPrediction.R`をインポートして使用してください.
 
-詳しい使い方は PeriodicBasedPrediction/Example/exampleUsage.R をご覧ください．
+詳しい使い方は Example/ExampleUsage.R をご覧ください．
 
 > [!WARNING]
 > このプログラムは高速化するために並列処理を実装しています. 8 コア以上の cpu を用いることを推奨します.
 
 # WseBasedPrediction で使える各関数について
 
-## loadData()
-
-データセットを読み込むための関数です. txt 形式で, 1 行目にテスト時刻, 2 行目にフォール発見数が記載されているものに限ります.
-
-```
-loadData(
-    dataPath = "データセットのパス"
-)
-```
-
-## quadraticBasedPrediction()
+## quatratic_based_prediction()
 
 回帰関数を二次関数 : $`a*(x^2+b)+c`$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は後述します.
 
@@ -46,14 +34,13 @@ loadData(
 > 予測値の精度向上のために,初期値を網羅的に与えています. 実行時間は約1sです.
 
 ```
-PeriodicBasedPrediction(
-    data =  データセット
-    dt =  ("none", "A1", "A2", "A3", "B1", "B2", "Fi", "Fr"), #データ変換の指定
-    thresholdName = ("ldt", "ut", "lut", "lht"), #閾値決定アルゴリズムの指定
-    thresholdMode = ("h", "s"), #閾値法の指定
-    var = データ変換の際の分散を指定(デフォルトは1),
+quatratic_based_prediction(
+    data = データセット,
+    dt = ("none", "A1", "A2", "A3", "B1", "B2", "Fi", "Fr"), # データ変換の指定
+    threshold_name = ("ldt", "ut", "lut"), # 閾値決定アルゴリズムの指定
+    threshold_mode = ("h", "s"), # 閾値法の指定
     index = 分割データのデータ長を指定(デフォルトは3),
-    initThresholdvalue = 閾値の初期値(適当で良い)
+    init_threshold_value = 閾値の初期値(適当で良い),
     training_percentage = 学習データの割合設定
 )
 ```
@@ -74,7 +61,7 @@ PeriodicBasedPrediction(
 
 ### 閾値決定アルゴリズム
 
-閾値決定アルゴリズムは`thresholdName`によって指定することができます. WseBasedPrediction では次の表の閾値決定アルゴリズムが実装されています.
+閾値決定アルゴリズムは`threshold_name`によって指定することができます. WseBasedPrediction では次の表の閾値決定アルゴリズムが実装されています.
 | 変数名 | 閾値決定アルゴリズム名 | 備考 |
 | ------------- | ------------- | ------------- |
 | ldt | Level-dependent-Threshold | dt="none"を指定した場合のみ適用化 |
@@ -85,7 +72,7 @@ PeriodicBasedPrediction(
 
 ### 閾値法
 
-閾値法は`thresholdMode`によって指定することができます. WseBasedPrediction では次の表の閾値法が実装されています.
+閾値法は`threshold_mode`によって指定することができます. WseBasedPrediction では次の表の閾値法が実装されています.
 | 変数名 | 閾値決定アルゴリズム名 |
 | ------------- | ------------- |
 | s | Soft thresholding method |
@@ -93,10 +80,10 @@ PeriodicBasedPrediction(
 
 ### 実行結果
 
-`PeriodicBasedPrediction()`は予測値と係数の時系列データを回帰した際の最も精度の良い回帰関数の回帰係数を返します.
+`quatratic_based_prediction()`は予測値と係数の時系列データを回帰した際の最も精度の良い回帰関数の回帰係数を返します.
 
 ```
-result = PeriodicBasedPrediction()
+result = quatratic_based_prediction()
 
 result
 $predictionData #予測値
@@ -112,43 +99,68 @@ $regressionCoefficient
 8  denoised wavelet coefficient d30
 ```
 
-## PeriodicBasedPrediction()
+## sliding_window_wavelet_shrinkage_prediction() (SWWSP)
 
-回帰関数を周期関数 : $`a*sin(b*x+c)+d`$をベースに予測する関数です. 引数は以下をとることができます. データ変換, 閾値決定アルゴリズム, 閾値法の詳しい内容は`quadraticBasedPrediction()`と同様です.
+ウェーブレット縮小推定と回帰モデル組み合わせて予測を行う関数です. 引数は以下をとることができます.
+
+> [!NOTE]
+> `regression_model = "periodic"` を指定した場合、回帰関数を周期関数 $`a*sin(b*x+c)+d`$ をベースに予測します（Periodic-based Prediction, 2023 Matsui）。
 
 > [!WARNING]
-> 予測値の精度向上のために,初期値を網羅的に与えています. 実行時間は約 1.5h です.
+> `regression_model = "periodic"` の場合、予測値の精度向上のために初期値を網羅的に与えています. 実行時間は約 1.5h です.
 
 ```
-PeriodicBasedPrediction(
-    data =  データセット
-    dt =  ("none", "A1", "A2", "A3", "B1", "B2", "Fi", "Fr"), #データ変換の指定
-    thresholdName = ("ldt", "ut", "lut"), #閾値決定アルゴリズムの指定
-    thresholdMode = ("h", "s"), #閾値法の指定
-    var = データ変換の際の分散を指定(デフォルトは1),
-    index = 分割データのデータ長を指定(デフォルトは3),
-    initThresholdvalue = 閾値の初期値(適当で良い)
-    training_percentage = 学習データの割合設定
+sliding_window_wavelet_shrinkage_prediction(
+    data = データセット,
+    dt = ("none", "A1", "A2", "A3", "B1", "B2", "Fi", "Fr"), # データ変換
+    threshold_name = ("ldt", "ut", "lut"), # 閾値決定アルゴリズム
+    threshold_mode = ("h", "s"), # 閾値法
+    index = 分割データのデータ長,
+    init_threshold_value = 閾値の初期値,
+    training_percentage = 学習データの割合,
+    name = 出力ファイル名等のプレフィックス,
+    regression_model = ("periodic", "arima", "rnn"), # 回帰モデルの指定
+    units = 4, # RNN等のユニット数(デフォルト4)
+    epochs = 20 # エポック数(デフォルト20)
 )
 ```
 
-### 実行結果
+## multi_resolution_wavelet_prediction() (MWWP)
 
-`PeriodicBasedPrediction()`は予測値と係数の時系列データを回帰した際の最も精度の良い回帰関数の回帰係数を返します.
+ウェーブレット分解を用いて予測を行う関数です. 引数は以下をとることができます.
 
 ```
-result = PeriodicBasedPrediction()
-
-result
-$predictionData #予測値
-$regressionCoefficient
-    a         b         c         d
-1  scaling coefficient c00
-2  wavelet coefficient d30
-3  wavelet coefficient d31
-4  wavelet coefficient d32
-5  wavelet coefficient d33
-6  wavelet coefficient d20
-7  wavelet coefficient d21
-8  wavelet coefficient d30
+multi_resolution_wavelet_prediction(
+    data = データセット,
+    training_percentage = 学習データの割合,
+    resolution_level = 解像度レベル,
+    name = 出力ファイル名等のプレフィックス,
+    regression_model = ("periodic","arima", "lstm", "rnn", "prophet"), # 回帰モデルの指定
+    units = 4, # LSTM/RNNのユニット数(デフォルト4)
+    epochs = 20 # エポック数(デフォルト20)
+)
 ```
+### get_max_resolution_level()
+データセットに対して適用可能な最大解像度レベルを取得する関数です.
+
+```
+get_max_resolution_level(
+    data = データセット
+)
+```
+## Evaluator
+予測結果の評価を行うモジュールです。インポートして使用してください。
+### pmae()
+予測結果の PMAE を計算する関数です.
+```
+pmae(
+    actual_data = 実測値,
+    predicted_data = 予測値
+)
+```
+
+## 実績
+
+- 松井 薫, 肖 霄, “Predicting the number of software faults using wavelets and nonlinear regression ,”日本オペレーションズ・リサーチ学会 2024 年春季研究発表会，3 月 7 日 - 8 日, 2024.
+
+- Kaoru Matsui, Xiao Xiao, “On predicting software intensity using wavelets and nonlinear regression ,” The 3rd International Workshop on Dependable Computing for Complex Systems, June 24 – 27, 2024 - [論文](https://www.computer.org/csdl/proceedings-article/dsn-w/2024/957200a021/1ZNTmnn46ac)

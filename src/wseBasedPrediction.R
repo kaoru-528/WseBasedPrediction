@@ -266,6 +266,10 @@ quatratic_based_prediction <- function(data, dt, threshold_name, threshold_mode,
 }
 
 multi_resolution_wavelet_prediction <- function(data, training_percentage, resolution_level, name, regression_model, units = 4, epochs = 20) {
+    if(resolution_level > get_max_resolution_level(data)){
+        print("Error: resolution_level is too large")
+        return(NULL)
+    }
     training_data <- data[1:ceiling(length(data) * training_percentage)] / sqrt(2 ** resolution_level)
     prediction_term <- floor((1 - training_percentage) * length(data))
 
@@ -338,7 +342,7 @@ multi_resolution_wavelet_prediction <- function(data, training_percentage, resol
             prediction_result[[j]] <- data.frame(mean = periodic_function(y, sorted_best_coe_list[[j]]$a[[1]], sorted_best_coe_list[[j]]$b[[1]], sorted_best_coe_list[[j]]$c[[1]], sorted_best_coe_list[[j]]$d[[1]]))
         }
         stopCluster(cl)
-        
+
         # sorted_best_coe_listをRDataファイルに保存
         if (!dir.exists(name)) {
             dir.create(name, recursive = TRUE)
@@ -415,6 +419,10 @@ multi_resolution_wavelet_prediction <- function(data, training_percentage, resol
     }
     prediction_result <- list(prediction_data = inverse_data[1:prediction_term] * sqrt(2 ** resolution_level), execute_time = time)
     return(prediction_result)
+}
+
+get_max_resolution_level <- function(data) {
+    return(floor(log2(length(data))))
 }
 
 # private
