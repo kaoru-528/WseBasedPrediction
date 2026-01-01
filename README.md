@@ -12,8 +12,6 @@ Author: Kaoru Matsui
 | Sliding Window Wavelet Shrinkage Prediction (SWWSP) | `sliding_window_wavelet_shrinkage_prediction()` | 回帰モデルとして periodic, arima, rnn を選択可能 |
 | Multi-resolution Wavelet Prediction (MWWP) | `multi_resolution_wavelet_prediction()` | 回帰モデルとして arima, periodic, lstm, rnn, prophet を選択可能 |
 
-> [!NOTE]
-> `PeriodicBasedPrediction()` は `sliding_window_wavelet_shrinkage_prediction()` で `regression_model = "periodic"` を指定したものと同等です。
 
 # WseBasedPrediction の使い方
 
@@ -68,7 +66,8 @@ quatratic_based_prediction(
 | ut | Universal-Threshold | dt="none"以外を指定した場合のみ適用化 |
 | lut | Level-dependent Universal Threshold | dt="none"以外を指定した場合のみ適用化 |
 
-> [!CAUTION] > `lht` は未実装.
+> [!CAUTION]
+> `lht` は未実装.
 
 ### 閾値法
 
