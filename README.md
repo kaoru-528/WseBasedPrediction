@@ -114,7 +114,7 @@ sliding_window_wavelet_shrinkage_prediction(
     dt = ("none", "A1", "A2", "A3", "B1", "B2", "Fi", "Fr"), # データ変換
     threshold_name = ("ldt", "ut", "lut"), # 閾値決定アルゴリズム
     threshold_mode = ("h", "s"), # 閾値法
-    index = 分割データのデータ長,
+    index = 分割するデータの長さである2のべき数を指定(resoluton levelを指定することと同義),
     init_threshold_value = 閾値の初期値,
     training_percentage = 学習データの割合,
     name = 出力ファイル名等のプレフィックス,
