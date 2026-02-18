@@ -1,4 +1,4 @@
-# # when you run this program for the first time, you have to install thire packages
+# when you run this program for the first time, you have to install  the following packages.
 # install.packages("tictoc")
 # install.packages("doParallel")
 # install.packages("foreach")
@@ -11,8 +11,8 @@ library(tictoc)
 library(forecast)
 
 rm(list = ls())
-periodic_based_prediction_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WseBasedPrediction.R")
-source(periodic_based_prediction_path)
+wse_based_prediction_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WseBasedPrediction.R")
+source(wse_based_prediction_path)
 
 # Load data
 data <- load_data(data_path = "/example/exampleDS.txt")
