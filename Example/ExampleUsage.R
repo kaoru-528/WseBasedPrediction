@@ -10,7 +10,6 @@ library(foreach)
 library(tictoc)
 library(forecast)
 
-rm(list = ls())
 wse_based_prediction_path <- paste0(dirname(rstudioapi::getSourceEditorContext()$path), "/src/WseBasedPrediction.R")
 source(wse_based_prediction_path)
 
